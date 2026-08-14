@@ -7,7 +7,7 @@ describe('package contract', () => {
       bin?: Record<string, string>
       dsh?: { bundle?: unknown; client?: unknown }
     }
-    expect(pkg.bin?.['dsh-doctor']).toBe('./lib/cli.js')
+    expect(pkg.bin?.['dsh-doctor']).toBe('lib/cli.js')
     expect(pkg.dsh?.bundle).toBeDefined()
     expect(pkg.dsh?.client).toBeDefined()
     expect(JSON.stringify(pkg.dsh?.client)).toContain('@deepseek-ai/dsh-client-ui-primitives')

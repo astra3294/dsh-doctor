@@ -4,13 +4,13 @@
   "description": "Deterministic diagnostics and recovery for DeepSeek Harness",
   "type": "module",
   "license": "MIT",
-  "author": "sc3294145287-beep",
+  "author": "astra3294",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sc3294145287-beep/dsh-doctor.git"
+    "url": "git+https://github.com/astra3294/dsh-doctor.git"
   },
-  "homepage": "https://github.com/sc3294145287-beep/dsh-doctor#readme",
-  "bugs": "https://github.com/sc3294145287-beep/dsh-doctor/issues",
+  "homepage": "https://github.com/astra3294/dsh-doctor#readme",
+  "bugs": "https://github.com/astra3294/dsh-doctor/issues",
   "keywords": [
     "deepseek",
     "deepseek-harness",
@@ -42,7 +42,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "dsh-doctor": "./lib/cli.js"
+    "dsh-doctor": "lib/cli.js"
   },
   "dsh": {
     "bundle": {

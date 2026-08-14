@@ -8,6 +8,7 @@ import { DEFAULT_PROFILE, DOCTOR_VERSION, SUPPORTED_DSH_VERSION } from './consta
 import { exists, fileSize, isReadableWritable, readText } from './fs-utils.js'
 import { displayPath, safeEvidence } from './redact.js'
 import { profileRoot, resolveDshHome, safeProfileName } from './paths.js'
+import { inspectEnvironment, inspectProfilePlugins, inspectWorkspaces } from './checks.js'
 import type {
   DoctorIssue, DoctorScanReport, DoctorSummary, ProfileReport, RuntimeModelStatus, RuntimePluginEntry, ScanOptions,
 } from './types.js'
@@ -233,6 +234,14 @@ async function inspectProfile(
   if (dshPackage !== undefined) {
     try { dshVersion = (JSON.parse(await readText(dshPackage) ?? '{}') as { version?: string }).version } catch {}
   }
+
+  await inspectProfilePlugins({
+    name, root, dshHome,
+    manifest: manifest ?? {},
+    bundles,
+    includePaths,
+  }, issues)
+
   return { name, path: displayPath(root, dshHome, includePaths), exists: true, dshVersion, dependencies, bundles }
 }
 
@@ -466,6 +475,8 @@ export async function scanHarness(options: ScanOptions = {}): Promise<DoctorScan
   await inspectSettings(dshHome, includePaths, issues)
   await inspectLogs(dshHome, includePaths, issues)
   await inspectSessionStore(dshHome, includePaths, issues)
+  await inspectWorkspaces(dshHome, includePaths, issues)
+  await inspectEnvironment(dshHome, includePaths, issues, options)
   inspectRuntime(options.runtimeEntries ?? [], issues)
   inspectRuntimeModel(options.runtimeModel, issues)
 

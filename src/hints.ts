@@ -134,6 +134,58 @@ export const ISSUE_HINTS: Readonly<Record<string, IssueHint>> = {
     en: 'There is no healthy checkpoint yet, so this is a cold-start rescue: rebuilding broken files requires your explicit confirmation.',
     zh: '还没有健康检查点，属于冷启动救援：重建损坏文件需要你明确确认。',
   },
+  NODE_VERSION_UNSUPPORTED: {
+    en: 'Your Node version is outside the range the Harness declares. This explains mysterious zstd/native-module errors and hangs — upgrade or pin Node first.',
+    zh: '当前 Node 版本超出 Harness 声明的引擎范围——这正是 zstd 报错/原生模块报错/启动卡死的常见根源。先升级或锁定 Node 版本。',
+  },
+  DOTENV_DIRECTORY: {
+    en: 'A folder named `.env` confuses the Harness (it expects a file). Rename it and the EISDIR warning disappears.',
+    zh: '存在一个名为 `.env` 的文件夹（Harness 期望它是文件）。把它改名，每次启动的 EISDIR 报错就会消失。',
+  },
+  PORT_IN_EXCLUDED_RANGE: {
+    en: 'The default 3080 port sits inside a Windows reserved range (Hyper-V/WSL2), so binding fails with EACCES. Start the Harness on a different port.',
+    zh: '默认 3080 端口落在 Windows 保留端口区间内（Hyper-V/WSL2 导致），绑定会报 EACCES。换个端口启动 Harness。',
+  },
+  PS_UNIX_TOOLS_MISSING: {
+    en: 'PowerShell 5.1 lacks head/tail/grep unless Git is on PATH. Use PowerShell cmdlets or Git Bash / WSL / PowerShell 7.',
+    zh: 'PowerShell 5.1 没有 head/tail/grep（除非 PATH 里有 Git）。改用 PowerShell 命令，或换 Git Bash / WSL / PowerShell 7。',
+  },
+  KOFFI_VERSION_RISK: {
+    en: 'This koffi version is known to crash the native directory picker on some Windows setups. Community workaround: pin koffi@3.1.2.',
+    zh: '这个 koffi 版本在部分 Windows 环境会导致原生目录选择器崩溃。社区验证的规避方案：锁定 koffi@3.1.2。',
+  },
+  UTF16_PATH_TRUNCATION: {
+    en: 'This path contains characters (shown in the message) that the Harness misreads as end-of-string, so the workspace silently fails. Move it to a different path.',
+    zh: '该路径包含会被 Harness 误判为字符串结尾的字符（见消息中列出），工作区会因此静默失败。换一个目录。',
+  },
+  ROOT_WORKSPACE: {
+    en: 'A drive/volume root was chosen as a workspace, which produces an empty title and EPERM errors. Use a concrete subdirectory.',
+    zh: '把磁盘/卷根目录当成了工作区，会产生空标题和 EPERM 错误。请选一个具体子目录。',
+  },
+  LINKED_PLUGIN_RESOLUTION: {
+    en: 'A locally linked plugin resolves modules from its real folder, so @deepseek-ai packages are unreachable at boot. Fix: use ctx services instead of imports, or bundle the peers.',
+    zh: '本地 link 的插件会从真实目录解析模块，启动时找不到 @deepseek-ai 包。修法：改用 ctx 服务而不 import 这些包，或把 peer 依赖打进构建。',
+  },
+  INACTIVE_PLUGIN_DEPENDENCY: {
+    en: 'This package is installed but never mounted: it is missing from dsh.profile.bundles (or lacks a dsh.bundle declaration), so it silently does nothing.',
+    zh: '这个包装了但没被挂载：不在 dsh.profile.bundles 里（或缺少 dsh.bundle 声明），所以静默不生效。',
+  },
+  PATCH_NAME_UNRESOLVED: {
+    en: 'cordis.patch.yml names a plugin that cannot be resolved — usually a stale name after a rename. Fix the name (and the bundle list) to match the installed package.',
+    zh: 'cordis.patch.yml 里写的插件名解析不到——通常是改包名后没同步。把名字改成已安装的包名。',
+  },
+  PATCH_PATH_NOT_URL: {
+    en: 'Plugin paths in cordis.patch.yml must be file:/// URLs; bare drive paths fail with ERR_UNSUPPORTED_ESM_URL_SCHEME. Prefix the path with file:///.',
+    zh: 'cordis.patch.yml 里的插件路径必须是 file:/// URL；裸盘符路径会报 ERR_UNSUPPORTED_ESM_URL_SCHEME。给路径加上 file:/// 前缀。',
+  },
+  PLUGIN_PEER_MISMATCH: {
+    en: 'A plugin wants a different @deepseek-ai version line than the one installed. rc-stage APIs break often; wait for a plugin update or pin the matching line.',
+    zh: '插件的 @deepseek-ai 依赖版本线与已安装的不匹配。rc 阶段 API 变动频繁：等插件更新，或锁定匹配的版本线。',
+  },
+  WEB_SKILL_DISABLED: {
+    en: 'Skills are disabled in the web bundle by default and fail silently. Enable them with a --patch overlay if you need skills in the Web UI.',
+    zh: 'Web 版默认禁用 skill 且不报错。如果需要在 WebUI 里用 skill，用 --patch 覆盖打开。',
+  },
 }
 
 /** Locale-dictionary entries keyed `hint.<code>` for one UI language. */

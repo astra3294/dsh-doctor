@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.2.1 — 2026-08-15
+
+### Mined from the community (13 new detections)
+
+The first mining pass across the Harness Discussions, the plugin ecosystem, Chinese community blogs, and the npm registry produced 55 raw findings (≈40 deduplicated patterns). Thirteen new deterministic checks landed, each with a bilingual plain-language hint:
+
+- `NODE_VERSION_UNSUPPORTED` — Node outside the Harness engine range (zstd exports, hangs, native-module failures).
+- `DOTENV_DIRECTORY` — a folder named `.env` confuses the boot loader (EISDIR).
+- `PORT_IN_EXCLUDED_RANGE` — 3080 inside a Windows reserved port range (Hyper-V/WSL2, EACCES).
+- `PS_UNIX_TOOLS_MISSING` — PowerShell 5.1 without head/tail/grep.
+- `KOFFI_VERSION_RISK` — koffi versions known to crash the native directory picker.
+- `UTF16_PATH_TRUNCATION` — workspace paths with characters whose UTF-16LE low byte is 0x00 (开/耀/言…).
+- `ROOT_WORKSPACE` — a drive/volume root registered as a workspace.
+- `LINKED_PLUGIN_RESOLUTION` — link:/file: plugins that cannot resolve `@deepseek-ai/*` at boot.
+- `INACTIVE_PLUGIN_DEPENDENCY` — plugin-looking packages installed but never mounted as bundles.
+- `PATCH_NAME_UNRESOLVED` — stale patch insert names after a rename.
+- `PATCH_PATH_NOT_URL` — bare drive paths in `cordis.patch.yml` (must be `file:///` URLs).
+- `PLUGIN_PEER_MISMATCH` — peer dependencies on the wrong `@deepseek-ai` version line.
+- `WEB_SKILL_DISABLED` — skills silently disabled in the web bundle.
+
+### Community cost-sharing
+
+- New `dsh-doctor report` command: builds an opt-in, redacted failure report (secrets and local paths masked) with a preview, browser pre-fill (`--open`), and gh CLI submission (`--submit`). This is the open-source mining loop: findings flow back from users instead of being hunted one by one.
+- New `docs/FAILURE_PATTERNS.md` catalog: every mined pattern with source links, root cause, and Doctor action, maintained by the release-triggered mining loop.
+
 ## 0.2.0 — 2026-08-15
 
 ### One-click recovery to a working Harness

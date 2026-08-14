@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { RPC_CHANNEL } from './constants.js'
 import { DoctorService } from './service.js'
 import type { ApplyPlanOptions, RuntimeModelStatus, RuntimePluginEntry, ScanOptions } from './types.js'
@@ -99,12 +100,17 @@ async function liveProbe(ctx: HostContext, signal: AbortSignal): Promise<{
     return { status: 'unavailable', message: 'The LLM runtime or default model service is unavailable.' }
   }
   try {
-    const { createUserMessage } = await import('@deepseek-ai/dsh-llm/message')
+    // Deliberately no `@deepseek-ai/*` import here: the Host plugin must keep
+    // working when the profile links it from a local dev directory (the
+    // module-resolution fallback never covers linked real paths). The message
+    // mirrors dsh-llm's createUserMessage shape (role + source + content + id).
     const selection = defaults.currentSelection()
-    const message = createUserMessage({
+    const message = {
+      role: 'user',
       source: { kind: 'user' },
       content: [{ type: 'text', text: 'Reply with OK.' }],
-    })
+      id: randomUUID(),
+    }
     let terminal: { type?: string; reason?: { kind?: string; failure?: { code?: string; status?: number } } } | undefined
     const chunks: unknown[] = []
     for await (const chunk of llm.stream({

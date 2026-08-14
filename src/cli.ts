@@ -1,22 +1,16 @@
-import { spawn } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
+import { readFileSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { Command, CommanderError } from 'commander'
 import { DEFAULT_PROFILE, DEFAULT_WEB_PORT, DOCTOR_VERSION } from './constants.js'
 import { probeBoot, type BootProbeResult } from './boot-probe.js'
 import { DoctorEngine } from './repair.js'
 import { summarizeIssues } from './scanner.js'
 import { ISSUE_HINTS } from './hints.js'
+import { buildReportPayload, renderIssueMarkdown, reportIssueUrl, rootCauseSummary } from './report.js'
 import { resolveDshHome } from './paths.js'
 import type { DoctorIssue, DoctorScanReport } from './types.js'
-
-function rootCauseSummary(report: DoctorScanReport): string {
-  const counts = new Map<string, number>()
-  for (const item of report.issues) {
-    if (item.severity !== 'error' && item.severity !== 'warning') continue
-    counts.set(item.code, (counts.get(item.code) ?? 0) + 1)
-  }
-  if (counts.size === 0) return 'no blocking findings'
-  return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([code, count]) => `${code}×${String(count)}`).join(', ')
-}
 
 function outputReport(report: DoctorScanReport, json: boolean): void {
   if (json) {
@@ -204,6 +198,61 @@ program.command('checkpoint')
     if (options.json) process.stdout.write(`${JSON.stringify(checkpoint, null, 2)}\n`)
     else process.stdout.write(`Healthy checkpoint created: ${checkpoint.id} (${checkpoint.createdAt})\n`)
   })
+
+program.command('report')
+  .description('Build a redacted, opt-in failure report to share with the community')
+  .option('-p, --profile <name>', 'profile to report on', DEFAULT_PROFILE)
+  .option('--json', 'emit the redacted payload as JSON')
+  .option('--open', 'open the pre-filled GitHub issue page in the browser')
+  .option('--submit', 'submit via the gh CLI (requires gh auth)')
+  .action(async (options: { profile?: string; json?: boolean; open?: boolean; submit?: boolean }) => {
+    const engine = new DoctorEngine()
+    const profile = options.profile ?? DEFAULT_PROFILE
+    const report = await engine.scan({ profile })
+    const history = await engine.history({ profile })
+    const payload = buildReportPayload(report, history.runs[0], resolveDshHome())
+    if (options.json) {
+      process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`)
+      return
+    }
+    const markdown = renderIssueMarkdown(payload)
+    process.stdout.write('=== Preview (everything below is redacted: no keys, no absolute paths) ===\n\n')
+    process.stdout.write(`${markdown}\n\n`)
+    const title = `[doctor-report] ${payload.rootCause} (Node ${payload.node}, ${payload.platform})`
+    if (options.submit) {
+      const bodyFile = join(tmpdir(), `dsh-doctor-report-${String(process.pid)}.md`)
+      writeFileSync(bodyFile, markdown, 'utf8')
+      const gh = spawnSync('gh', ['issue', 'create', '--repo', reportRepo(), '--title', title, '--body-file', bodyFile], { encoding: 'utf8' })
+      if (gh.status !== 0) {
+        process.stderr.write(`gh submission failed: ${gh.stderr?.trim() || 'gh CLI unavailable'}\n`)
+        process.stderr.write('Re-run with --open to submit via the browser instead.\n')
+        process.exitCode = 2
+      } else {
+        process.stdout.write(`${gh.stdout}`)
+      }
+      return
+    }
+    if (options.open) {
+      openBrowser(reportIssueUrl(reportRepo(), payload))
+      return
+    }
+    process.stdout.write('To share: run `dsh-doctor report --open` (browser) or `dsh-doctor report --submit` (gh CLI).\n')
+  })
+
+function reportRepo(): string {
+  try {
+    const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { repository?: { url?: string } }
+    const match = manifest.repository?.url?.match(/github\.com[:/]([^/]+\/[^/.]+?)(?:\.git)?$/i)
+    if (match !== null && match !== undefined) return match[1]!
+  } catch {}
+  return 'astra3294/dsh-doctor'
+}
+
+function openBrowser(url: string): void {
+  if (process.platform === 'win32') spawn('cmd', ['/c', 'start', '""', url], { windowsHide: true, stdio: 'ignore' })
+  else if (process.platform === 'darwin') spawn('open', [url], { stdio: 'ignore' })
+  else spawn('xdg-open', [url], { stdio: 'ignore' })
+}
 
 program.command('launch')
   .description('Start the Harness; diagnose automatically when it fails to boot')

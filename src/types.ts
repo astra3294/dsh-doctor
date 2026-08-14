@@ -158,6 +158,8 @@ export interface ScanOptions {
   readonly includePaths?: boolean
   readonly runtimeEntries?: readonly RuntimePluginEntry[]
   readonly runtimeModel?: RuntimeModelStatus
+  /** Override for environment checks (tests and embedded probes). */
+  readonly nodeVersion?: string
 }
 
 export interface ApplyPlanOptions {

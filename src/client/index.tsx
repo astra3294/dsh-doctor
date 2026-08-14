@@ -6,6 +6,7 @@ import {
 } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client'
 import { DOCTOR_VERSION, RPC_CHANNEL, SUPPORTED_DSH_VERSION } from '../constants.js'
+import { hintEntries } from '../hints.js'
 import type {
   DoctorCheckpoint, DoctorRun, DoctorScanReport, DoctorSeverity, RepairAction, RepairPlan,
 } from '../types.js'
@@ -406,12 +407,20 @@ function DoctorVersion({ t }: { t: Translator }): ReactNode {
 
 function IssueList({ report, t }: { report?: DoctorScanReport; t: Translator }): ReactNode {
   if (report === undefined || report.issues.length === 0) return <p className="dshDoctorEmpty">{t('issues.empty')}</p>
-  return <ul className="dshDoctorIssueList">{report.issues.map((item, index) => (
-    <li className="dshDoctorIssue" key={`${item.code}-${String(index)}`}>
-      <IssueDot severity={item.severity} />
-      <div><strong>{item.title}</strong><p>{item.message}</p></div>
-    </li>
-  ))}</ul>
+  return <ul className="dshDoctorIssueList">{report.issues.map((item, index) => {
+    const hintKey = `hint.${item.code}`
+    const hint = t(hintKey)
+    return (
+      <li className="dshDoctorIssue" key={`${item.code}-${String(index)}`}>
+        <IssueDot severity={item.severity} />
+        <div>
+          <strong>{item.title}</strong>
+          <p>{item.message}</p>
+          {hint !== hintKey ? <p className="dshDoctorIssueHint">{hint}</p> : null}
+        </div>
+      </li>
+    )
+  })}</ul>
 }
 
 function DoctorSettingsSection({ controller, t }: SharedProps): ReactNode {
@@ -520,7 +529,10 @@ export function apply(ctx: ClientContext): void {
   const connection = ctx.get('connection') as Connection
   const controller = new DoctorController(connection)
   ctx.effect(() => installDoctorStyles(), 'dsh-doctor: styles')
-  ctx.effect(() => ctx.locale.register(NS, { en, zh }), 'dsh-doctor: dictionaries')
+  ctx.effect(() => ctx.locale.register(NS, {
+    en: { ...en, ...hintEntries('en') },
+    zh: { ...zh, ...hintEntries('zh') },
+  }), 'dsh-doctor: dictionaries')
   const t = ctx.locale.bind(NS)
   const injected = () => ({ controller, t })
   ctx.effect(() => installDoctorSettingsNavIcon(() => t('nav')), 'dsh-doctor: settings nav icon')

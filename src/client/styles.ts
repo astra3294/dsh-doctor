@@ -65,6 +65,7 @@ const CSS = `
 .dshDoctorIssueDotInfo{width:8px;height:8px;border-radius:50%;background:var(--dsw-alias-label-caption)}
 .dshDoctorIssue strong{display:block;font-size:13px;line-height:20px;font-weight:500;color:var(--dsw-alias-label-secondary)}
 .dshDoctorIssue p{margin:2px 0 0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary)}
+.dshDoctorIssueHint{margin:6px 0 0;padding:6px 8px;border-radius:6px;font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-button-ghost-active-fill)}
 .dshDoctorEmpty{margin:0;font-size:13px;line-height:20px;color:var(--dsw-alias-label-tertiary)}
 
 /* Mirrors ModelsSettingsSection in the installed rc.6 UI package. */

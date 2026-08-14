@@ -4,6 +4,7 @@ import { DEFAULT_PROFILE, DEFAULT_WEB_PORT, DOCTOR_VERSION } from './constants.j
 import { probeBoot, type BootProbeResult } from './boot-probe.js'
 import { DoctorEngine } from './repair.js'
 import { summarizeIssues } from './scanner.js'
+import { ISSUE_HINTS } from './hints.js'
 import { resolveDshHome } from './paths.js'
 import type { DoctorIssue, DoctorScanReport } from './types.js'
 
@@ -34,6 +35,8 @@ function outputIssue(item: DoctorIssue): void {
   const marker = item.severity === 'error' ? 'ERROR' : item.severity === 'warning' ? 'WARN' : 'INFO'
   process.stdout.write(`\n[${marker}] ${item.code}: ${item.title}\n  ${item.message}\n`)
   if (item.evidence !== undefined) process.stdout.write(`  ${item.evidence}\n`)
+  const hint = ISSUE_HINTS[item.code]?.en
+  if (hint !== undefined) process.stdout.write(`  ${hint}\n`)
 }
 
 function exitCode(report: DoctorScanReport, strict: boolean): number {

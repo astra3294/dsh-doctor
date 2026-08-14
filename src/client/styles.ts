@@ -75,6 +75,9 @@ const CSS = `
 .dshDoctorSettingsGroup{padding-top:16px;border-top:1px solid var(--dsw-alias-border-l2)}
 .dshDoctorSettingsGroup h3{margin:0 0 8px;font-size:14px;font-weight:500;line-height:22px;color:var(--dsw-alias-label-primary)}
 
+/* Version stamp */
+.dshDoctorVersion{margin:6px 0 0;font-size:12px;line-height:18px;font-variant-numeric:tabular-nums;color:var(--dsw-alias-label-caption)}
+
 /* Checkpoint history rows */
 .dshDoctorHistoryRow{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:36px;padding:8px 0;font-size:13px;line-height:20px;color:var(--dsw-alias-label-secondary)}
 .dshDoctorHistoryRow+.dshDoctorHistoryRow{border-top:1px solid var(--dsw-alias-border-l1)}

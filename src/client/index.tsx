@@ -5,7 +5,7 @@ import {
   type StateDotState,
 } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client'
-import { RPC_CHANNEL } from '../constants.js'
+import { DOCTOR_VERSION, RPC_CHANNEL, SUPPORTED_DSH_VERSION } from '../constants.js'
 import type {
   DoctorCheckpoint, DoctorRun, DoctorScanReport, DoctorSeverity, RepairAction, RepairPlan,
 } from '../types.js'
@@ -372,6 +372,7 @@ function DoctorOverlay({ controller, t }: SharedProps): ReactNode {
       {snapshot.busy ? <Progress phase={snapshot.phase} t={t} /> : null}
       {snapshot.error !== undefined ? <div className="dshDoctorError" role="alert">{snapshot.error}</div> : null}
       <RecoveryActions controller={controller} snapshot={snapshot} t={t} />
+      <DoctorVersion t={t} />
     </Modal>
   )
 }
@@ -398,6 +399,11 @@ function IssueDot({ severity }: { severity: DoctorSeverity }): ReactNode {
   return <StateDot state={severity === 'error' ? 'error' : 'warning'} size={8} className="dshDoctorIssueDot" />
 }
 
+/** Version stamp: the exact installed build this UI was bundled with. */
+function DoctorVersion({ t }: { t: Translator }): ReactNode {
+  return <p className="dshDoctorVersion">{t('version.label')} v{DOCTOR_VERSION} · {t('version.for')} DSH {SUPPORTED_DSH_VERSION}</p>
+}
+
 function IssueList({ report, t }: { report?: DoctorScanReport; t: Translator }): ReactNode {
   if (report === undefined || report.issues.length === 0) return <p className="dshDoctorEmpty">{t('issues.empty')}</p>
   return <ul className="dshDoctorIssueList">{report.issues.map((item, index) => (
@@ -417,6 +423,7 @@ function DoctorSettingsSection({ controller, t }: SharedProps): ReactNode {
         <div>
           <h2 className="dshDoctorSectionTitle" id="dsh-doctor-settings-title">{t('title')}</h2>
           <p className="dshDoctorSectionDesc">{t('settings.description')}</p>
+          <DoctorVersion t={t} />
         </div>
         <Button variant="ghost" size="sm" icon={<IconRefreshOutline16 size={14} />} aria-label={t('scan')} disabled={snapshot.busy} onClick={() => { void controller.scan(true) }}>{t('scan')}</Button>
       </header>
@@ -484,6 +491,7 @@ const en: Record<string, string> = {
   'settings.description': 'Diagnostics, recovery history, and protected rollback checkpoints.',
   'issues.title': 'Current findings', 'issues.empty': 'No issues found.',
   'checkpoints.title': 'Recovery checkpoints', 'checkpoints.empty': 'No checkpoints yet.',
+  'version.label': 'Version', 'version.for': 'for',
 }
 
 const zh: Record<string, string> = {
@@ -502,6 +510,7 @@ const zh: Record<string, string> = {
   'settings.description': '查看诊断结果、修复记录和受保护的回滚检查点。',
   'issues.title': '当前发现', 'issues.empty': '没有发现问题。',
   'checkpoints.title': '恢复检查点', 'checkpoints.empty': '还没有检查点。',
+  'version.label': '版本', 'version.for': '面向',
 }
 
 export const inject = ['slots', 'locale', 'connection']

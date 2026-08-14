@@ -477,7 +477,7 @@ function FailureBanner({ controller, t, useSession }: SharedProps & { useSession
 
 const en: Record<string, string> = {
   doctor: 'Doctor', open: 'Open DSH Doctor', close: 'Close', dismiss: 'Dismiss', title: 'DSH Doctor', nav: 'Doctor',
-  recover: 'One-click recovery', scan: 'Scan again', rollback: 'Rollback', copyRescue: 'Copy rescue command',
+  recover: 'Reset to healthy', scan: 'Scan again', rollback: 'Rollback', copyRescue: 'Copy rescue command',
   errors: 'errors', warnings: 'warnings', info: 'info', banner: 'Conversation problem detected',
   'health.healthy': 'Healthy', 'health.warning': 'Warnings found', 'health.error': 'Problems found', 'health.unknown': 'Not checked',
   'phase.ready': 'Ready to check', 'phase.checkpointing': 'Creating a checkpoint', 'phase.scanning': 'Scanning',
@@ -496,7 +496,7 @@ const en: Record<string, string> = {
 
 const zh: Record<string, string> = {
   doctor: 'Doctor', open: '打开 DSH Doctor', close: '关闭', dismiss: '暂时关闭', title: 'DSH Doctor', nav: 'Doctor',
-  recover: '一键恢复对话', scan: '重新检查', rollback: '回滚', copyRescue: '复制外部救援命令',
+  recover: '恢复到健康状态', scan: '重新检查', rollback: '回滚', copyRescue: '复制外部救援命令',
   errors: '个错误', warnings: '个警告', info: '条信息', banner: '检测到对话异常',
   'health.healthy': '状态正常', 'health.warning': '发现警告', 'health.error': '发现故障', 'health.unknown': '尚未检查',
   'phase.ready': '准备检查', 'phase.checkpointing': '正在创建备份', 'phase.scanning': '正在扫描',

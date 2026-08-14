@@ -70,15 +70,20 @@ async function runtimeModelStatus(ctx: HostContext, signal: AbortSignal, online:
   const providers = llm?.listProviders?.()
   const providerAvailable = providers?.some(provider => provider.id === selection.provider)
   let modelAvailable: boolean | undefined
+  let credentialFailure: 'missing' | 'invalid' | undefined
   if (online && providerAvailable === true && llm?.resolveModelInfo !== undefined) {
     try {
       await llm.resolveModelInfo(selection.provider, selection.model, signal)
       modelAvailable = true
-    } catch {
+    } catch (error) {
       modelAvailable = false
+      const code = (error as { code?: unknown } | null)?.code
+      const status = (error as { status?: unknown } | null)?.status
+      if (code === 'INVALID_CREDENTIAL' || status === 401) credentialFailure = 'invalid'
+      else if (code === 'MISSING_CREDENTIAL') credentialFailure = 'missing'
     }
   }
-  return { ...selection, providerAvailable, modelAvailable }
+  return { ...selection, providerAvailable, modelAvailable, ...(credentialFailure === undefined ? {} : { credentialFailure }) }
 }
 
 async function liveProbe(ctx: HostContext, signal: AbortSignal): Promise<{
@@ -101,13 +106,17 @@ async function liveProbe(ctx: HostContext, signal: AbortSignal): Promise<{
       content: [{ type: 'text', text: 'Reply with OK.' }],
     })
     let terminal: { type?: string; reason?: { kind?: string; failure?: { code?: string; status?: number } } } | undefined
+    const chunks: unknown[] = []
     for await (const chunk of llm.stream({
       ...selection,
       messages: [message],
       maxTokens: 4,
       temperature: 0,
       signal,
-    })) if (chunk.type === 'finish') terminal = chunk
+    })) {
+      chunks.push(chunk)
+      if (chunk.type === 'finish') terminal = chunk
+    }
     const finish = terminal?.reason
     if (finish?.kind === 'error' || finish?.kind === 'aborted') {
       const credential = finish.failure?.code === 'INVALID_CREDENTIAL'
@@ -120,7 +129,11 @@ async function liveProbe(ctx: HostContext, signal: AbortSignal): Promise<{
           : 'The configured model returned a terminal failure.',
       }
     }
-    return { status: 'passed', message: 'The configured model completed a minimal non-session request.' }
+    const sawContent = chunks.some(chunk => (chunk as { type?: string }).type !== 'finish')
+    const acknowledged = /\bOK\b/i.test(JSON.stringify(chunks).slice(0, 4000))
+    if (!sawContent) return { status: 'failed', message: 'The model stream finished without emitting any content.' }
+    if (!acknowledged) return { status: 'failed', message: 'The model answered, but the response did not include the expected acknowledgment; the route may be misconfigured.' }
+    return { status: 'passed', message: 'The configured model completed a minimal non-session request and acknowledged it.' }
   } catch (error) {
     return { status: 'failed', message: `Live model probe failed: ${String(error)}` }
   }

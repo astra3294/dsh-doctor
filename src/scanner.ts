@@ -1,10 +1,10 @@
-import { lstat, readdir, readlink } from 'node:fs/promises'
+import { lstat, open, readdir, readlink } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
-import { parseDocument } from 'yaml'
+import { parseDocument, YAMLMap, YAMLSeq } from 'yaml'
 import semver from 'semver'
-import { DOCTOR_VERSION, SUPPORTED_DSH_VERSION } from './constants.js'
+import { DEFAULT_PROFILE, DOCTOR_VERSION, SUPPORTED_DSH_VERSION } from './constants.js'
 import { exists, fileSize, isReadableWritable, readText } from './fs-utils.js'
 import { displayPath, safeEvidence } from './redact.js'
 import { profileRoot, resolveDshHome, safeProfileName } from './paths.js'
@@ -23,6 +23,11 @@ function issue(input: DoctorIssue): DoctorIssue {
 }
 
 function summarize(issues: readonly DoctorIssue[]): DoctorSummary {
+  return summarizeIssues(issues)
+}
+
+/** Recompute a summary for an issue list (exported for boot-probe merging). */
+export function summarizeIssues(issues: readonly DoctorIssue[]): DoctorSummary {
   return {
     errors: issues.filter(item => item.severity === 'error').length,
     warnings: issues.filter(item => item.severity === 'warning').length,
@@ -30,8 +35,24 @@ function summarize(issues: readonly DoctorIssue[]): DoctorSummary {
   }
 }
 
+/**
+ * Warnings that veto a `healthy` checkpoint. Intentional developer patterns
+ * (non-registry sources, external plugin sources, unknown-but-untouched
+ * versions) are NOT blocking — otherwise a plugin developer with a
+ * `file:`-linked package could never establish a recovery baseline.
+ */
+const BLOCKING_WARNING_CODES = new Set([
+  'CONFIG_PERMISSION', 'PLUGIN_RUNTIME_PENDING', 'DSH_VERSION_UNSUPPORTED', 'RECENT_LOG_FAILURE',
+])
+
+/** Issues that must be absent before a profile may be marked healthy. */
+export function blockingIssues(report: DoctorScanReport): DoctorIssue[] {
+  return report.issues.filter(item => item.severity === 'error' || BLOCKING_WARNING_CODES.has(item.code))
+}
+
 async function profileNames(dshHome: string, options: ScanOptions): Promise<string[]> {
   if (options.profile !== undefined) return [safeProfileName(options.profile)]
+  if (options.allProfiles === false) return [safeProfileName(process.env.DSH_PROFILE ?? DEFAULT_PROFILE)]
   const directory = join(dshHome, 'profiles')
   if (!await exists(directory)) return []
   return (await readdir(directory, { withFileTypes: true }))
@@ -127,6 +148,36 @@ async function inspectProfile(
       code: 'EXTERNAL_PLUGIN_SOURCE', severity: 'warning', title: 'External plugin source detected',
       message: 'The Cordis patch references a URL or local package source; review it before repair.', profile: name,
       file: displayPath(patchPath, dshHome, includePaths), recoverability: 'manual',
+    }))
+    if (errors.length === 0) {
+      const doc = parseDocument(rawPatch)
+      const list = doc.contents instanceof YAMLSeq ? doc.contents : undefined
+      for (const item of list?.items ?? []) {
+        if (item instanceof YAMLMap && (item.get('disabled') as unknown) === true) {
+          const id = item.get('id') as unknown
+          if (typeof id === 'string') issues.push(issue({
+            code: 'PLUGIN_DISABLED', severity: 'info', title: 'A plugin was disabled by Doctor',
+            message: `${id} is disabled in the profile patch; it can be re-enabled after review.`, profile: name,
+            evidence: id, file: displayPath(patchPath, dshHome, includePaths), recoverability: 'confirmation',
+          }))
+        }
+      }
+    }
+  }
+
+  for (const yamlFile of [
+    { name: 'cordis.yml', code: 'CORDIS_YML_INVALID', title: 'Cordis composition cannot be parsed' },
+    { name: 'pnpm-workspace.yaml', code: 'WORKSPACE_YAML_INVALID', title: 'pnpm workspace cannot be parsed' },
+  ]) {
+    const path = join(root, yamlFile.name)
+    const raw = await readText(path)
+    if (raw === undefined) continue
+    const errors = parseYaml(raw, displayPath(path, dshHome, includePaths))
+    if (errors.length > 0) issues.push(issue({
+      code: yamlFile.code, severity: 'error', title: yamlFile.title,
+      message: `${yamlFile.name} contains invalid YAML and can block Harness startup.`, profile: name,
+      evidence: safeEvidence(errors.join('; '), dshHome, includePaths),
+      file: displayPath(path, dshHome, includePaths), recoverability: 'automatic',
     }))
   }
 
@@ -319,6 +370,87 @@ async function onlineLatestVersion(): Promise<string | undefined> {
   }
 }
 
+/** zstd frame magic (0xFD2FB528) read little-endian as the first 4 bytes. */
+const ZSTD_MAGIC = 0xFD2FB528
+const SESSION_FILES_CAP = 50
+
+async function zstdHeaderValid(path: string): Promise<boolean | undefined> {
+  try {
+    const handle = await open(path, 'r')
+    try {
+      const buffer = Buffer.alloc(4)
+      const { bytesRead } = await handle.read(buffer, 0, 4, 0)
+      if (bytesRead < 4) return false
+      return buffer.readUInt32LE(0) === ZSTD_MAGIC
+    } finally {
+      await handle.close()
+    }
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined
+    throw error
+  }
+}
+
+/** Read-only integrity probe for conversation state. Never deletes anything. */
+async function inspectSessionStore(dshHome: string, includePaths: boolean, issues: DoctorIssue[]): Promise<void> {
+  const sessions = join(dshHome, 'sessions')
+  if (await exists(sessions)) {
+    try {
+      const workspaces = (await readdir(sessions, { withFileTypes: true })).filter(entry => entry.isDirectory())
+      for (const workspace of workspaces) {
+        const workspacePath = join(sessions, workspace.name)
+        let files: { name: string }[]
+        try {
+          files = (await readdir(workspacePath, { withFileTypes: true }))
+            .filter(entry => entry.isFile() && /\.zstd$/i.test(entry.name))
+            .slice(0, SESSION_FILES_CAP)
+        } catch {
+          continue
+        }
+        for (const file of files) {
+          const path = join(workspacePath, file.name)
+          const size = await fileSize(path)
+          const header = await zstdHeaderValid(path)
+          if (size !== undefined && (size === 0 || header === false)) {
+            issues.push(issue({
+              code: 'SESSION_STORE_CORRUPT', severity: 'warning', title: 'A session record looks corrupt',
+              message: 'This file cannot be read as a zstd session record; conversations may fail to load. Doctor can quarantine it (reversible) so the Harness starts fresh sessions.',
+              file: displayPath(path, dshHome, includePaths), recoverability: 'confirmation',
+            }))
+          }
+        }
+      }
+    } catch {
+      // A malformed sessions tree must not break the scan.
+    }
+  }
+
+  const storages = join(dshHome, 'storages')
+  if (await exists(storages)) {
+    let files: { name: string }[]
+    try {
+      files = (await readdir(storages, { withFileTypes: true })).filter(entry => entry.isFile() && /\.json$/i.test(entry.name))
+    } catch {
+      files = []
+    }
+    for (const file of files) {
+      const path = join(storages, file.name)
+      const raw = await readText(path)
+      if (raw === undefined) continue
+      try {
+        JSON.parse(raw)
+      } catch (error) {
+        issues.push(issue({
+          code: 'SESSION_STORE_CORRUPT', severity: 'warning', title: 'A storage cache is corrupt',
+          message: 'This JSON cache is invalid and can be quarantined (reversible) so the Harness rebuilds it.',
+          evidence: safeEvidence(String(error), dshHome, includePaths),
+          file: displayPath(path, dshHome, includePaths), recoverability: 'confirmation',
+        }))
+      }
+    }
+  }
+}
+
 export async function scanHarness(options: ScanOptions = {}): Promise<DoctorScanReport> {
   const dshHome = resolveDshHome(options.dshHome)
   const includePaths = options.includePaths ?? false
@@ -333,6 +465,7 @@ export async function scanHarness(options: ScanOptions = {}): Promise<DoctorScan
   for (const name of names) profiles.push(await inspectProfile(name, dshHome, includePaths, issues))
   await inspectSettings(dshHome, includePaths, issues)
   await inspectLogs(dshHome, includePaths, issues)
+  await inspectSessionStore(dshHome, includePaths, issues)
   inspectRuntime(options.runtimeEntries ?? [], issues)
   inspectRuntimeModel(options.runtimeModel, issues)
 

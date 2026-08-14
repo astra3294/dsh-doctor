@@ -15,6 +15,8 @@ function candidateFiles(dshHome: string, profile: string): string[] {
   return [
     join(root, 'package.json'),
     join(root, 'cordis.patch.yml'),
+    join(root, 'cordis.yml'),
+    join(root, 'pnpm-workspace.yaml'),
     join(root, 'pnpm-lock.yaml'),
     join(dshHome, 'settings.yaml'),
     join(dshHome, 'settings.yml'),
@@ -122,7 +124,11 @@ export async function rollbackCheckpoint(dshHome: string, checkpointId: string):
 
 async function pruneCheckpoints(dshHome: string, profile: string): Promise<void> {
   const checkpoints = await listCheckpoints(dshHome, profile)
-  for (const checkpoint of checkpoints.slice(CHECKPOINT_RETENTION)) {
+  // Newest-first. Always retain the most recent healthy checkpoint beyond the
+  // retention cap: it is the recovery baseline and must never be pruned away.
+  const newestHealthy = checkpoints.find(checkpoint => checkpoint.valid && checkpoint.kind === 'healthy')
+  const excess = checkpoints.slice(CHECKPOINT_RETENTION).filter(checkpoint => checkpoint.id !== newestHealthy?.id)
+  for (const checkpoint of excess) {
     await rm(checkpointDirectory(dshHome, profile, checkpoint.id), { recursive: true, force: true })
   }
 }

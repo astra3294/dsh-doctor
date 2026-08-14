@@ -1,12 +1,97 @@
+/*
+ * DSH Doctor client styles.
+ *
+ * Every color, border, and background resolves through the DeepSeek Harness
+ * `--dsw-*` design tokens (defined globally on `body` / `body[data-ds-dark-theme]`
+ * by dsh-client-ui-theme). This keeps Doctor on the same palette, radii, and
+ * light/dark switch as the rest of the WebUI — no hardcoded hex, no independent
+ * `prefers-color-scheme` override.
+ */
 const CSS = `
-.dshDoctorButton{display:flex;align-items:center;gap:10px;width:100%;min-height:36px;padding:8px 10px;border:0;border-radius:8px;background:transparent;color:inherit;font:inherit;cursor:pointer}.dshDoctorButton:hover{background:color-mix(in srgb,currentColor 8%,transparent)}.dshDoctorButton[data-wide=false]{justify-content:center;padding:8px}.dshDoctorStatus{width:8px;height:8px;border-radius:50%;background:#8b8b93;box-shadow:0 0 0 2px color-mix(in srgb,#8b8b93 20%,transparent)}.dshDoctorStatus[data-level=healthy]{background:#3fb950}.dshDoctorStatus[data-level=warning]{background:#d29922}.dshDoctorStatus[data-level=error]{background:#f85149}
-.dshDoctorOverlay{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;pointer-events:auto}.dshDoctorMask{position:absolute;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(3px)}.dshDoctorPanel{position:relative;width:min(560px,calc(100vw - 32px));max-height:min(760px,calc(100vh - 32px));overflow:auto;border:1px solid color-mix(in srgb,currentColor 14%,transparent);border-radius:18px;background:var(--color-bg-elevated,#2b2b2e);color:var(--color-text,#f1f1f3);box-shadow:0 24px 80px rgba(0,0,0,.42);padding:22px}.dshDoctorPanelHeader{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}.dshDoctorPanelHeader h2{font-size:20px;margin:0}.dshDoctorIconButton{display:grid;place-items:center;width:32px;height:32px;border:0;border-radius:8px;background:transparent;color:inherit;cursor:pointer}.dshDoctorIconButton:hover{background:color-mix(in srgb,currentColor 9%,transparent)}
-.dshDoctorHero{display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:14px;background:color-mix(in srgb,#4d6bfe 12%,transparent);border:1px solid color-mix(in srgb,#4d6bfe 35%,transparent)}.dshDoctorHeroIcon{display:grid;place-items:center;width:36px;height:36px;flex:none;border-radius:10px;background:#4d6bfe;color:white}.dshDoctorHero h3{margin:0 0 5px;font-size:16px}.dshDoctorHero p{margin:0;color:var(--color-text-secondary,#b8b8bd);font-size:13px;line-height:1.5}.dshDoctorCounts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.dshDoctorBadge{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;font-size:12px;background:color-mix(in srgb,currentColor 8%,transparent)}.dshDoctorBadge[data-level=error]{color:#ff8b87}.dshDoctorBadge[data-level=warning]{color:#e5bd57}
-.dshDoctorActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.dshDoctorPrimary,.dshDoctorSecondary,.dshDoctorDanger{min-height:38px;padding:0 15px;border-radius:9px;font:inherit;font-weight:600;cursor:pointer}.dshDoctorPrimary{border:1px solid #4d6bfe;background:#4d6bfe;color:#fff}.dshDoctorSecondary{border:1px solid color-mix(in srgb,currentColor 22%,transparent);background:transparent;color:inherit}.dshDoctorDanger{border:1px solid color-mix(in srgb,#f85149 55%,transparent);background:color-mix(in srgb,#f85149 12%,transparent);color:#ff9b98}.dshDoctorPrimary:disabled,.dshDoctorSecondary:disabled{opacity:.55;cursor:not-allowed}.dshDoctorProgress{margin-top:18px;padding:14px;border-radius:12px;background:color-mix(in srgb,currentColor 5%,transparent);font-size:13px}.dshDoctorProgress ol{margin:0;padding-left:20px}.dshDoctorProgress li{padding:3px 0;color:var(--color-text-secondary,#b8b8bd)}.dshDoctorProgress li[data-active=true]{color:inherit;font-weight:600}.dshDoctorError{margin-top:14px;padding:10px 12px;border-radius:9px;background:color-mix(in srgb,#f85149 12%,transparent);color:#ffaaa7;font-size:13px;word-break:break-word}
-.dshDoctorSection{display:flex;flex-direction:column;gap:18px;max-width:820px;padding-bottom:32px}.dshDoctorSectionHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.dshDoctorSectionHeader h2{margin:0 0 6px;font-size:20px}.dshDoctorSectionHeader p{margin:0;color:var(--color-text-secondary,#8f8f96);font-size:13px}.dshDoctorCard{padding:16px;border:1px solid color-mix(in srgb,currentColor 13%,transparent);border-radius:12px;background:color-mix(in srgb,currentColor 3%,transparent)}.dshDoctorCard h3{margin:0 0 12px;font-size:15px}.dshDoctorIssueList,.dshDoctorHistoryList{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}.dshDoctorIssue{display:grid;grid-template-columns:10px 1fr;gap:10px;padding:10px;border-radius:9px;background:color-mix(in srgb,currentColor 5%,transparent)}.dshDoctorIssueDot{width:8px;height:8px;border-radius:50%;margin-top:5px;background:#8b8b93}.dshDoctorIssueDot[data-level=error]{background:#f85149}.dshDoctorIssueDot[data-level=warning]{background:#d29922}.dshDoctorIssue strong{display:block;font-size:13px}.dshDoctorIssue p{margin:3px 0 0;color:var(--color-text-secondary,#aaaab0);font-size:12px;line-height:1.45}.dshDoctorEmpty{color:var(--color-text-secondary,#8f8f96);font-size:13px}.dshDoctorHistoryRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid color-mix(in srgb,currentColor 8%,transparent);font-size:13px}.dshDoctorHistoryRow:last-child{border-bottom:0}
-.dshDoctorBanner{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:10px 12px;border:1px solid color-mix(in srgb,#f85149 42%,transparent);border-radius:11px;background:color-mix(in srgb,#f85149 10%,var(--color-bg,#1f1f21));color:inherit}.dshDoctorBannerText{display:flex;align-items:center;gap:9px;font-size:13px}.dshDoctorBannerActions{display:flex;align-items:center;gap:6px}.dshDoctorBanner button{white-space:nowrap}.dshDoctorVisuallyHidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-@media (prefers-color-scheme:light){.dshDoctorPanel{background:#fff;color:#242428}.dshDoctorHero p,.dshDoctorSectionHeader p,.dshDoctorIssue p,.dshDoctorEmpty{color:#66676f}.dshDoctorBanner{background:#fff5f5}}
-@media (max-width:600px){.dshDoctorPanel{padding:16px;border-radius:14px}.dshDoctorSectionHeader{flex-direction:column}.dshDoctorBanner{align-items:flex-start}.dshDoctorBannerActions{flex-direction:column;align-items:stretch}}
+.dshDoctorVisuallyHidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* rc.6 renders a default gear for unknown settings-section ids. */
+[data-dsh-doctor-nav=true]>[data-dsh-doctor-fallback-icon=true]{display:none!important}
+[data-dsh-doctor-nav-icon=true]{display:block;flex:none;width:16px;height:16px;color:inherit}
+
+/* Exact geometry used by the built-in settings trigger in rc.6. */
+.dshDoctorSidebarButton{box-sizing:border-box;position:relative;display:inline-flex;align-items:center;gap:8px;width:calc(100% + 8px);height:34px;margin:4px -4px;padding:6px 2px 6px 10px;border:0;border-radius:12px;background:transparent;color:var(--dsw-alias-label-primary);font-family:var(--dsw-font-family);font-size:14px;line-height:20px;cursor:pointer;overflow:hidden}
+.dshDoctorSidebarButton:hover{background:var(--dsw-alias-interactive-bg-hover-solid)}
+.dshDoctorSidebarButton:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary);outline-offset:-2px}
+.dshDoctorSidebarButton[data-wide=false]{justify-content:center;gap:0;width:36px;height:36px;margin:4px 0;border-radius:50%;padding:0}
+.dshDoctorSidebarLabel{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dshDoctorSidebarStatus{margin-left:auto;margin-right:8px}
+.dshDoctorSidebarButton[data-wide=false] .dshDoctorSidebarStatus{position:absolute;top:5px;right:5px;margin-left:0}
+
+/* Status summary: a native settings row, not a second dark panel. */
+.dshDoctorSummary{display:grid;grid-template-columns:32px minmax(0,1fr) 8px;gap:12px;align-items:start}
+.dshDoctorSummaryIcon{display:grid;place-items:center;width:32px;height:32px;border-radius:8px;color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}
+.dshDoctorSummaryCopy{min-width:0}
+.dshDoctorSummary h3{margin:0 0 2px;font-size:14px;font-weight:500;line-height:22px;color:var(--dsw-alias-label-primary)}
+.dshDoctorSummary p{margin:0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary)}
+.dshDoctorSummaryState{margin-top:7px}
+.dshDoctorStatusSurface{padding:14px;border:1px solid var(--dsw-alias-border-l2);border-radius:12px;background:transparent}
+.dshDoctorModal{box-sizing:border-box;width:520px;max-width:calc(100vw - 48px)}
+.dshDoctorModal .dshDoctorSummary{padding:14px;border:1px solid var(--dsw-alias-border-l2);border-radius:12px}
+
+/* Compact textual counts follow the restrained metadata treatment in settings. */
+.dshDoctorCounts{display:flex;flex-wrap:wrap;align-items:center;gap:0;margin-top:12px;font-variant-numeric:tabular-nums}
+.dshDoctorCount{display:inline-flex;align-items:center;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary)}
+.dshDoctorCount+.dshDoctorCount::before{content:'·';margin:0 8px;color:var(--dsw-alias-label-caption)}
+.dshDoctorCount[data-level=error]{color:var(--dsw-alias-state-error-primary)}
+.dshDoctorCount[data-level=warning]{color:var(--dsw-alias-state-warn-label)}
+
+/* Action rows */
+.dshDoctorActions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+
+/* Progress */
+.dshDoctorProgress{margin-top:12px;padding:10px 12px;border-left:2px solid var(--dsw-alias-border-l2);font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary)}
+.dshDoctorProgress ol{margin:0;padding-left:18px}
+.dshDoctorProgress li{padding:2px 0;color:var(--dsw-alias-label-tertiary)}
+.dshDoctorProgress li[data-active=true]{color:var(--dsw-alias-label-primary);font-weight:500}
+
+/* Error callout */
+.dshDoctorError{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:13px;line-height:20px;color:var(--dsw-alias-state-error-primary);background:var(--dsw-alias-interactive-bg-hover-danger);word-break:break-word}
+
+/* Secondary decisions use a divider, matching built-in setting rows. */
+.dshDoctorNotice{margin-top:16px;padding-top:16px;border-top:1px solid var(--dsw-alias-border-l2)}
+.dshDoctorNotice h3{margin:0 0 8px;font-size:14px;font-weight:500;line-height:22px;color:var(--dsw-alias-label-primary)}
+
+/* Issue / checkpoint lists */
+.dshDoctorIssueList,.dshDoctorHistoryList{display:flex;flex-direction:column;margin:0;padding:0;list-style:none}
+.dshDoctorIssue{display:grid;grid-template-columns:12px 1fr;gap:8px;align-items:start;padding:10px 0}
+.dshDoctorIssue+.dshDoctorIssue{border-top:1px solid var(--dsw-alias-border-l1)}
+.dshDoctorIssueDot{display:inline-flex;margin-top:6px}
+.dshDoctorIssueDotInfo{width:8px;height:8px;border-radius:50%;background:var(--dsw-alias-label-caption)}
+.dshDoctorIssue strong{display:block;font-size:13px;line-height:20px;font-weight:500;color:var(--dsw-alias-label-secondary)}
+.dshDoctorIssue p{margin:2px 0 0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary)}
+.dshDoctorEmpty{margin:0;font-size:13px;line-height:20px;color:var(--dsw-alias-label-tertiary)}
+
+/* Mirrors ModelsSettingsSection in the installed rc.6 UI package. */
+.dshDoctorSection{display:flex;flex-direction:column;gap:12px;max-width:720px}
+.dshDoctorSectionHead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.dshDoctorSectionTitle{margin:0;font-size:16px;font-weight:500;line-height:24px;color:var(--dsw-alias-label-primary)}
+.dshDoctorSectionDesc{margin:2px 0 0;font-size:14px;line-height:22px;color:var(--dsw-alias-label-tertiary)}
+.dshDoctorSettingsGroup{padding-top:16px;border-top:1px solid var(--dsw-alias-border-l2)}
+.dshDoctorSettingsGroup h3{margin:0 0 8px;font-size:14px;font-weight:500;line-height:22px;color:var(--dsw-alias-label-primary)}
+
+/* Checkpoint history rows */
+.dshDoctorHistoryRow{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:36px;padding:8px 0;font-size:13px;line-height:20px;color:var(--dsw-alias-label-secondary)}
+.dshDoctorHistoryRow+.dshDoctorHistoryRow{border-top:1px solid var(--dsw-alias-border-l1)}
+.dshDoctorHistoryMeta{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Failure banner */
+.dshDoctorBanner{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:10px 12px;border:1px solid var(--dsw-alias-border-l2);border-radius:12px;background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-label-primary)}
+.dshDoctorBannerText{display:flex;align-items:center;gap:8px;font-size:13px;line-height:20px}
+.dshDoctorBannerActions{display:flex;align-items:center;gap:6px}
+.dshDoctorBanner button{white-space:nowrap}
+
+/* Emergency floating entry (shell overlay layer; appears only when broken) */
+.dshDoctorFloating{pointer-events:auto;position:fixed;right:20px;bottom:20px;z-index:40;display:grid;place-items:center;width:40px;height:40px;border:1px solid var(--dsw-alias-border-l2);border-radius:999px;background:var(--dsw-alias-button-floating-fill);color:var(--dsw-alias-state-error-primary);cursor:pointer;box-shadow:var(--dsw-shadow-lv2)}
+.dshDoctorFloating:hover{background:var(--dsw-alias-button-floating-hover)}
+.dshDoctorFloating:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary);outline-offset:2px}
+
+@media (max-width:600px){.dshDoctorModal{max-width:calc(100vw - 24px)}.dshDoctorSectionHead{flex-direction:column}.dshDoctorBanner{align-items:flex-start}.dshDoctorBannerActions{flex-direction:column;align-items:stretch}}
 `
 
 export function installDoctorStyles(): () => void {

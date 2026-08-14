@@ -1,15 +1,78 @@
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode, type SVGProps } from 'react'
 import {
-  IconCheckOutline16, IconCloseOutline16, IconRefreshOutline16, IconSettingsOutline16,
+  Button, Modal, StateDot,
+  IconCloseOutline16, IconCopyOutline16, IconRefreshOutline16,
+  type StateDotState,
 } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client'
 import { RPC_CHANNEL } from '../constants.js'
 import type {
-  DoctorCheckpoint, DoctorRun, DoctorScanReport, RepairAction, RepairPlan,
+  DoctorCheckpoint, DoctorRun, DoctorScanReport, DoctorSeverity, RepairAction, RepairPlan,
 } from '../types.js'
 import { installDoctorStyles } from './styles.js'
 
 type Translator = (key: string) => string
+
+const WHALE_BODY_PATH = 'M7.5 14.3c1 3.3 4 5.3 8.1 5.3 4.1 0 6.8-2.1 6.8-5.2 0-3-2.7-5.3-6.3-5.3-2.6 0-4.8 1.1-5.9 3'
+const WHALE_TAIL_PATH = 'M7.6 11.8C6 10.1 4.4 9.4 2.4 9.8c.2 1.5.9 2.7 2.2 3.5-1.2.5-2.1 1.5-2.4 2.8 2 .3 3.8-.3 5.3-1.7'
+
+/** Compact, monochrome Doctor mark that inherits the Harness label color. */
+function DoctorWhaleIcon({ size = 16, ...props }: SVGProps<SVGSVGElement> & { size?: number }): ReactNode {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d={WHALE_TAIL_PATH} />
+      <path d={WHALE_BODY_PATH} />
+      <circle cx="13.7" cy="13.2" r="0.65" fill="currentColor" stroke="none" />
+      <path d="M18.2 12.4v4M16.2 14.4h4" />
+    </svg>
+  )
+}
+
+function createDoctorWhaleElement(): SVGSVGElement {
+  const ns = 'http://www.w3.org/2000/svg'
+  const svg = document.createElementNS(ns, 'svg')
+  for (const [name, value] of Object.entries({
+    viewBox: '0 0 24 24', width: '16', height: '16', fill: 'none', stroke: 'currentColor',
+    'stroke-width': '1.5', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+    'aria-hidden': 'true', 'data-dsh-doctor-nav-icon': 'true',
+  })) svg.setAttribute(name, value)
+  for (const pathData of [WHALE_TAIL_PATH, WHALE_BODY_PATH, 'M18.2 12.4v4M16.2 14.4h4']) {
+    const path = document.createElementNS(ns, 'path')
+    path.setAttribute('d', pathData)
+    svg.appendChild(path)
+  }
+  const eye = document.createElementNS(ns, 'circle')
+  for (const [name, value] of Object.entries({ cx: '13.7', cy: '13.2', r: '0.65', fill: 'currentColor', stroke: 'none' })) eye.setAttribute(name, value)
+  svg.insertBefore(eye, svg.lastChild)
+  return svg
+}
+
+/**
+ * rc.6 chooses settings icons from a hard-coded id map and exposes no icon slot.
+ * Limit the compatibility shim to the Doctor-labelled nav item and leave the
+ * Harness DOM untouched when that item is not mounted.
+ */
+function installDoctorSettingsNavIcon(label: () => string): () => void {
+  const enhance = (): void => {
+    const buttons = document.querySelectorAll<HTMLButtonElement>('[role="dialog"][aria-modal="true"] nav button')
+    for (const button of buttons) {
+      if (button.textContent?.trim() !== label().trim() || button.dataset.dshDoctorNav === 'true') continue
+      button.dataset.dshDoctorNav = 'true'
+      const fallback = button.querySelector<SVGSVGElement>('svg')
+      fallback?.setAttribute('data-dsh-doctor-fallback-icon', 'true')
+      button.insertBefore(createDoctorWhaleElement(), button.firstChild)
+    }
+  }
+  const observer = new MutationObserver(enhance)
+  observer.observe(document.body, { childList: true, subtree: true })
+  enhance()
+  return () => {
+    observer.disconnect()
+    document.querySelectorAll('[data-dsh-doctor-nav="true"]').forEach(button => delete (button as HTMLElement).dataset.dshDoctorNav)
+    document.querySelectorAll('[data-dsh-doctor-nav-icon="true"]').forEach(icon => icon.remove())
+    document.querySelectorAll('[data-dsh-doctor-fallback-icon="true"]').forEach(icon => icon.removeAttribute('data-dsh-doctor-fallback-icon'))
+  }
+}
 
 interface RpcFailure {
   readonly code: string
@@ -86,10 +149,10 @@ class DoctorController {
   open = (): void => { this.patch({ open: true }); void this.initialize() }
   close = (): void => this.patch({ open: false })
 
-  async scan(): Promise<DoctorScanReport | undefined> {
+  async scan(online = false): Promise<DoctorScanReport | undefined> {
     this.patch({ busy: true, phase: 'scanning', error: undefined })
     try {
-      const report = await this.call<DoctorScanReport>('scan', {})
+      const report = await this.call<DoctorScanReport>('scan', { online })
       this.patch({ report, busy: false, phase: 'ready' })
       return report
     } catch (error) {
@@ -197,6 +260,15 @@ function healthLevel(snapshot: ControllerSnapshot): 'healthy' | 'warning' | 'err
   return 'healthy'
 }
 
+function stateForLevel(level: 'healthy' | 'warning' | 'error' | 'unknown'): StateDotState {
+  switch (level) {
+    case 'healthy': return 'done'
+    case 'warning': return 'warning'
+    case 'error': return 'error'
+    case 'unknown': return 'ongoing'
+  }
+}
+
 function phaseLabel(phase: string, t: Translator): string {
   const key = `phase.${phase}`
   const translated = t(key)
@@ -212,10 +284,10 @@ function DoctorSidebarButton({ controller, t, wide }: SharedProps & { wide: bool
   const snapshot = useDoctor(controller)
   const level = healthLevel(snapshot)
   return (
-    <button className="dshDoctorButton" data-wide={String(wide)} type="button" onClick={controller.open} aria-label={t('open')} title={t('open')}>
-      <IconSettingsOutline16 size={wide ? 16 : 18} aria-hidden="true" />
-      {wide ? <span>{t('doctor')}</span> : null}
-      <span className="dshDoctorStatus" data-level={level} aria-hidden="true" />
+    <button className="dshDoctorSidebarButton" data-wide={String(wide)} type="button" onClick={controller.open} aria-label={t('open')} title={t('open')}>
+      <DoctorWhaleIcon size={16} aria-hidden="true" />
+      {wide ? <span className="dshDoctorSidebarLabel">{t('doctor')}</span> : null}
+      <StateDot state={stateForLevel(level)} size={8} className="dshDoctorSidebarStatus" />
       <span className="dshDoctorVisuallyHidden">{t(`health.${level}`)}</span>
     </button>
   )
@@ -234,18 +306,19 @@ function Summary({ snapshot, t }: { snapshot: ControllerSnapshot; t: Translator 
   const report = snapshot.report
   return (
     <>
-      <div className="dshDoctorHero">
-        <span className="dshDoctorHeroIcon" aria-hidden="true"><IconSettingsOutline16 size={20} /></span>
-        <div>
+      <div className="dshDoctorSummary">
+        <span className="dshDoctorSummaryIcon" aria-hidden="true"><DoctorWhaleIcon size={18} /></span>
+        <div className="dshDoctorSummaryCopy">
           <h3>{phaseLabel(snapshot.phase, t)}</h3>
           <p>{snapshot.available ? t('summary.ready') : t('summary.unavailable')}</p>
         </div>
+        <StateDot state={stateForLevel(healthLevel(snapshot))} size={8} className="dshDoctorSummaryState" />
       </div>
       {report !== undefined ? (
         <div className="dshDoctorCounts" aria-label={t('summary.issues')}>
-          <span className="dshDoctorBadge" data-level="error">{String(report.summary.errors)} {t('errors')}</span>
-          <span className="dshDoctorBadge" data-level="warning">{String(report.summary.warnings)} {t('warnings')}</span>
-          <span className="dshDoctorBadge">{String(report.summary.info)} {t('info')}</span>
+          <span className="dshDoctorCount" data-level="error">{String(report.summary.errors)} {t('errors')}</span>
+          <span className="dshDoctorCount" data-level="warning">{String(report.summary.warnings)} {t('warnings')}</span>
+          <span className="dshDoctorCount">{String(report.summary.info)} {t('info')}</span>
         </div>
       ) : null}
     </>
@@ -256,33 +329,33 @@ function RecoveryActions({ controller, snapshot, t }: SharedProps & { snapshot: 
   const copyCommand = useCallback(() => { void navigator.clipboard?.writeText(snapshot.rescueCommand) }, [snapshot.rescueCommand])
   if (!snapshot.available) return (
     <div className="dshDoctorActions">
-      <button className="dshDoctorSecondary" type="button" onClick={copyCommand}>{t('copyRescue')}</button>
+      <Button variant="ghost" icon={<IconCopyOutline16 size={14} />} aria-label={t('copyRescue')} onClick={copyCommand}>{t('copyRescue')}</Button>
     </div>
   )
   return (
     <>
       <div className="dshDoctorActions">
-        <button className="dshDoctorPrimary" type="button" disabled={snapshot.busy} onClick={() => { void controller.recover(false) }}>{t('recover')}</button>
-        <button className="dshDoctorSecondary" type="button" disabled={snapshot.busy} onClick={() => { void controller.scan() }}><IconRefreshOutline16 size={14} aria-hidden="true" /> {t('scan')}</button>
+        <Button variant="primary" disabled={snapshot.busy} onClick={() => { void controller.recover(false) }}>{t('recover')}</Button>
+        <Button variant="ghost" disabled={snapshot.busy} icon={<IconRefreshOutline16 size={14} />} aria-label={t('scan')} onClick={() => { void controller.scan(true) }}>{t('scan')}</Button>
       </div>
       {snapshot.confirmationActions.length > 0 ? (
-        <div className="dshDoctorCard">
+        <div className="dshDoctorNotice">
           <h3>{t('confirmation.title')}</h3>
           <ul className="dshDoctorIssueList">{snapshot.confirmationActions.map(action => (
             <li className="dshDoctorIssue" key={action.id}>
-              <span className="dshDoctorIssueDot" data-level="warning" />
+              <StateDot state="warning" size={8} className="dshDoctorIssueDot" />
               <div><strong>{action.title}</strong><p>{action.description}</p></div>
             </li>
           ))}</ul>
-          <div className="dshDoctorActions"><button className="dshDoctorDanger" type="button" onClick={() => { void controller.recover(true) }}>{t('confirmation.apply')}</button></div>
+          <div className="dshDoctorActions"><Button variant="outline" onClick={() => { void controller.recover(true) }}>{t('confirmation.apply')}</Button></div>
         </div>
       ) : null}
       {snapshot.askLiveProbe ? (
-        <div className="dshDoctorCard">
+        <div className="dshDoctorNotice">
           <h3>{t('probe.title')}</h3><p className="dshDoctorEmpty">{t('probe.description')}</p>
           <div className="dshDoctorActions">
-            <button className="dshDoctorPrimary" type="button" onClick={() => { void controller.liveProbe() }}>{t('probe.run')}</button>
-            <button className="dshDoctorSecondary" type="button" onClick={() => controller.skipLiveProbe()}>{t('probe.skip')}</button>
+            <Button variant="primary" onClick={() => { void controller.liveProbe() }}>{t('probe.run')}</Button>
+            <Button variant="ghost" onClick={() => controller.skipLiveProbe()}>{t('probe.skip')}</Button>
           </div>
         </div>
       ) : null}
@@ -293,37 +366,43 @@ function RecoveryActions({ controller, snapshot, t }: SharedProps & { snapshot: 
 
 function DoctorOverlay({ controller, t }: SharedProps): ReactNode {
   const snapshot = useDoctor(controller)
-  const closeRef = useRef<HTMLButtonElement | null>(null)
-  useEffect(() => {
-    if (!snapshot.open) return
-    closeRef.current?.focus()
-    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') controller.close() }
-    document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
-  }, [controller, snapshot.open])
-  if (!snapshot.open) return null
   return (
-    <div className="dshDoctorOverlay" role="presentation">
-      <div className="dshDoctorMask" onClick={controller.close} aria-hidden="true" />
-      <section className="dshDoctorPanel" role="dialog" aria-modal="true" aria-labelledby="dsh-doctor-title">
-        <header className="dshDoctorPanelHeader">
-          <h2 id="dsh-doctor-title">{t('title')}</h2>
-          <button ref={closeRef} className="dshDoctorIconButton" type="button" onClick={controller.close} aria-label={t('close')}><IconCloseOutline16 size={16} /></button>
-        </header>
-        <Summary snapshot={snapshot} t={t} />
-        {snapshot.busy ? <Progress phase={snapshot.phase} t={t} /> : null}
-        {snapshot.error !== undefined ? <div className="dshDoctorError" role="alert">{snapshot.error}</div> : null}
-        <RecoveryActions controller={controller} snapshot={snapshot} t={t} />
-      </section>
-    </div>
+    <Modal open={snapshot.open} onClose={controller.close} title={t('title')} closeLabel={t('close')} className="dshDoctorModal" contentClassName="dshDoctorModalContent">
+      <Summary snapshot={snapshot} t={t} />
+      {snapshot.busy ? <Progress phase={snapshot.phase} t={t} /> : null}
+      {snapshot.error !== undefined ? <div className="dshDoctorError" role="alert">{snapshot.error}</div> : null}
+      <RecoveryActions controller={controller} snapshot={snapshot} t={t} />
+    </Modal>
   )
+}
+
+/**
+ * Emergency entry point rendered in the shell overlay layer, independent of
+ * the sidebar and conversation plugins: when the profile is broken, a
+ * floating Doctor button appears so the page always has a recovery path.
+ */
+function DoctorFloatingEntry({ controller, t }: SharedProps): ReactNode {
+  const snapshot = useDoctor(controller)
+  const broken = !snapshot.available || (snapshot.report !== undefined && snapshot.report.summary.errors > 0)
+  if (!broken || snapshot.open) return null
+  return (
+    <button className="dshDoctorFloating" type="button" onClick={controller.open} aria-label={t('open')} title={t('open')}>
+      <DoctorWhaleIcon size={16} aria-hidden="true" />
+      <span className="dshDoctorVisuallyHidden">{t('doctor')}</span>
+    </button>
+  )
+}
+
+function IssueDot({ severity }: { severity: DoctorSeverity }): ReactNode {
+  if (severity === 'info') return <span className="dshDoctorIssueDot dshDoctorIssueDotInfo" aria-hidden="true" />
+  return <StateDot state={severity === 'error' ? 'error' : 'warning'} size={8} className="dshDoctorIssueDot" />
 }
 
 function IssueList({ report, t }: { report?: DoctorScanReport; t: Translator }): ReactNode {
   if (report === undefined || report.issues.length === 0) return <p className="dshDoctorEmpty">{t('issues.empty')}</p>
   return <ul className="dshDoctorIssueList">{report.issues.map((item, index) => (
     <li className="dshDoctorIssue" key={`${item.code}-${String(index)}`}>
-      <span className="dshDoctorIssueDot" data-level={item.severity} aria-hidden="true" />
+      <IssueDot severity={item.severity} />
       <div><strong>{item.title}</strong><p>{item.message}</p></div>
     </li>
   ))}</ul>
@@ -334,19 +413,22 @@ function DoctorSettingsSection({ controller, t }: SharedProps): ReactNode {
   useEffect(() => { void controller.initialize(); void controller.loadHistory() }, [controller])
   return (
     <section className="dshDoctorSection" aria-labelledby="dsh-doctor-settings-title">
-      <header className="dshDoctorSectionHeader">
-        <div><h2 id="dsh-doctor-settings-title">{t('title')}</h2><p>{t('settings.description')}</p></div>
-        <button className="dshDoctorSecondary" type="button" disabled={snapshot.busy} onClick={() => { void controller.scan() }}>{t('scan')}</button>
+      <header className="dshDoctorSectionHead">
+        <div>
+          <h2 className="dshDoctorSectionTitle" id="dsh-doctor-settings-title">{t('title')}</h2>
+          <p className="dshDoctorSectionDesc">{t('settings.description')}</p>
+        </div>
+        <Button variant="ghost" size="sm" icon={<IconRefreshOutline16 size={14} />} aria-label={t('scan')} disabled={snapshot.busy} onClick={() => { void controller.scan(true) }}>{t('scan')}</Button>
       </header>
-      <div className="dshDoctorCard"><Summary snapshot={snapshot} t={t} /><RecoveryActions controller={controller} snapshot={snapshot} t={t} /></div>
-      <div className="dshDoctorCard"><h3>{t('issues.title')}</h3><IssueList report={snapshot.report} t={t} /></div>
-      <div className="dshDoctorCard">
+      <div className="dshDoctorStatusSurface"><Summary snapshot={snapshot} t={t} /><RecoveryActions controller={controller} snapshot={snapshot} t={t} /></div>
+      <div className="dshDoctorSettingsGroup"><h3>{t('issues.title')}</h3><IssueList report={snapshot.report} t={t} /></div>
+      <div className="dshDoctorSettingsGroup">
         <h3>{t('checkpoints.title')}</h3>
         {snapshot.checkpoints.length === 0 ? <p className="dshDoctorEmpty">{t('checkpoints.empty')}</p> : (
           <ul className="dshDoctorHistoryList">{snapshot.checkpoints.map(checkpoint => (
             <li className="dshDoctorHistoryRow" key={checkpoint.id}>
-              <span>{checkpoint.kind} · {new Date(checkpoint.createdAt).toLocaleString()}</span>
-              <button className="dshDoctorSecondary" type="button" disabled={snapshot.busy} onClick={() => { void controller.rollback(checkpoint.id) }}>{t('rollback')}</button>
+              <span className="dshDoctorHistoryMeta">{checkpoint.kind} · {new Date(checkpoint.createdAt).toLocaleString()}</span>
+              <Button variant="ghost" size="sm" disabled={snapshot.busy} onClick={() => { void controller.rollback(checkpoint.id) }}>{t('rollback')}</Button>
             </li>
           ))}</ul>
         )}
@@ -377,10 +459,10 @@ function FailureBanner({ controller, t, useSession }: SharedProps & { useSession
   if (!broken || dismissed === fingerprint) return null
   return (
     <div className="dshDoctorBanner" role="alert">
-      <div className="dshDoctorBannerText"><span className="dshDoctorIssueDot" data-level="error" />{t('banner')}</div>
+      <div className="dshDoctorBannerText"><StateDot state="error" size={8} />{t('banner')}</div>
       <div className="dshDoctorBannerActions">
-        <button className="dshDoctorPrimary" type="button" onClick={controller.open}>{t('recover')}</button>
-        <button className="dshDoctorIconButton" type="button" aria-label={t('dismiss')} onClick={() => setDismissed(fingerprint)}><IconCloseOutline16 size={14} /></button>
+        <Button variant="primary" size="sm" onClick={controller.open}>{t('recover')}</Button>
+        <Button variant="ghost" size="sm" icon={<IconCloseOutline16 size={14} />} aria-label={t('dismiss')} onClick={() => setDismissed(fingerprint)} />
       </div>
     </div>
   )
@@ -432,6 +514,7 @@ export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { en, zh }), 'dsh-doctor: dictionaries')
   const t = ctx.locale.bind(NS)
   const injected = () => ({ controller, t })
+  ctx.effect(() => installDoctorSettingsNavIcon(() => t('nav')), 'dsh-doctor: settings nav icon')
 
   ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register({
     name: 'sidebar.footer.action', id: 'dsh-doctor', order: 90, locale: NS, inject: injected,
@@ -439,6 +522,9 @@ export function apply(ctx: ClientContext): void {
   ctx.slots.inject('shell.overlay', () => ctx.slots.register({
     name: 'shell.overlay', id: 'dsh-doctor', order: 90, locale: NS, inject: injected,
   }, DoctorOverlay))
+  ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+    name: 'shell.overlay', id: 'dsh-doctor-floating', order: 200, locale: NS, inject: injected,
+  }, DoctorFloatingEntry))
   ctx.slots.inject('settings.section', () => ctx.slots.register({
     name: 'settings.section', id: 'doctor', order: 90, label: () => t('nav'), locale: NS, inject: injected,
   }, DoctorSettingsSection))

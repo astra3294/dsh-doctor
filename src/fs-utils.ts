@@ -2,6 +2,7 @@ import { constants } from 'node:fs'
 import { access, chmod, mkdir, open, readFile, rename, rm, stat } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { createHash, randomUUID } from 'node:crypto'
+import { STALE_LOCK_MS } from './constants.js'
 
 export async function exists(path: string): Promise<boolean> {
   try {
@@ -54,6 +55,41 @@ export async function atomicWrite(path: string, content: string | Uint8Array): P
   }
 }
 
+function pidAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0)
+    return true
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code === 'EPERM'
+  }
+}
+
+interface LockRecord {
+  pid?: number
+  startedAt?: string
+}
+
+async function lockStale(lockPath: string): Promise<boolean> {
+  let record: LockRecord
+  try {
+    record = JSON.parse(await readFile(lockPath, 'utf8')) as LockRecord
+  } catch {
+    // Unreadable or malformed lock: treat by age via mtime below.
+    record = {}
+  }
+  if (typeof record.pid === 'number' && pidAlive(record.pid)) return false
+  if (typeof record.startedAt === 'string') {
+    const age = Date.now() - Date.parse(record.startedAt)
+    if (Number.isFinite(age)) return age > STALE_LOCK_MS
+  }
+  try {
+    const info = await stat(lockPath)
+    return Date.now() - info.mtimeMs > STALE_LOCK_MS
+  } catch {
+    return false
+  }
+}
+
 export async function withFileLock<T>(lockPath: string, operation: () => Promise<T>): Promise<T> {
   await ensurePrivateDir(dirname(lockPath))
   let handle
@@ -61,9 +97,15 @@ export async function withFileLock<T>(lockPath: string, operation: () => Promise
     handle = await open(lockPath, 'wx', 0o600)
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
-      throw new Error(`another Doctor repair is already running (${lockPath})`)
+      if (await lockStale(lockPath)) {
+        await rm(lockPath, { force: true }).catch(() => {})
+        handle = await open(lockPath, 'wx', 0o600)
+      } else {
+        throw new Error(`another Doctor repair is already running (${lockPath})`)
+      }
+    } else {
+      throw error
     }
-    throw error
   }
   try {
     await handle.writeFile(JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() }))

@@ -16,5 +16,7 @@ describe('package contract', () => {
     expect(source).toContain("'conversation.input.dock'")
     expect(source).toContain("'settings.section'")
     expect(source).toContain("'shell.overlay'")
+    expect(source).toContain('function DoctorWhaleIcon')
+    expect(source).toContain('data-dsh-doctor-nav-icon')
   })
 })

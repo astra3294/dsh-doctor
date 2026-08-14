@@ -22,10 +22,37 @@ declare module '@deepseek-ai/dsh-client-runtime/client' {
 }
 
 declare module '@deepseek-ai/dsh-client-ui-primitives' {
-  import type { ComponentType, SVGProps } from 'react'
-  export const IconSettingsOutline16: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
-  export const IconCheckOutline16: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
+  import type { ButtonHTMLAttributes, ComponentType, ReactNode, SVGProps } from 'react'
+
+  export type ButtonVariant = 'primary' | 'ghost' | 'outline' | 'toolbar'
+  export const Button: ComponentType<ButtonHTMLAttributes<HTMLButtonElement> & {
+    variant?: ButtonVariant
+    size?: 'md' | 'sm'
+    icon?: ReactNode
+  }>
+
+  export type StateDotState = 'done' | 'warning' | 'ongoing' | 'error'
+  export const StateDot: ComponentType<{
+    state: StateDotState
+    size?: number
+    className?: string
+  }>
+
+  export const Modal: ComponentType<{
+    open: boolean
+    onClose: () => void
+    title: string
+    closeLabel?: string
+    description?: string
+    children?: ReactNode
+    footer?: ReactNode
+    className?: string
+    contentClassName?: string
+    headless?: boolean
+  }>
+
   export const IconCloseOutline16: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
+  export const IconCopyOutline16: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
   export const IconRefreshOutline16: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>
 }
 

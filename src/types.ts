@@ -60,8 +60,12 @@ export type RepairRisk = 'safe' | 'confirmation' | 'manual'
 export type RepairActionKind =
   | 'ensure-doctor-state'
   | 'restore-checkpoint-file'
+  | 'reset-to-healthy'
+  | 'synthesize-manifest'
   | 'install-profile-dependencies'
   | 'disable-plugin'
+  | 'undisable-plugin'
+  | 'quarantine-session-file'
   | 'switch-model'
   | 'manual'
 
@@ -115,6 +119,8 @@ export interface DoctorVerification {
   readonly structural: 'passed' | 'failed'
   readonly liveProbe: 'not-requested' | 'passed' | 'failed' | 'unavailable'
   readonly message: string
+  readonly summary?: DoctorSummary
+  readonly blocking?: number
 }
 
 export interface DoctorRun {

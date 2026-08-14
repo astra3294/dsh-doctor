@@ -1,0 +1,33 @@
+name: Bug report
+description: Report a reproducible DSH Doctor problem without secrets or private logs
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not paste API keys, credential files, unredacted paths, or private conversation logs.
+  - type: input
+    id: doctor-version
+    attributes:
+      label: DSH Doctor version
+    validations:
+      required: true
+  - type: input
+    id: dsh-version
+    attributes:
+      label: DeepSeek Harness version
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Include anonymized output from `dsh-doctor scan --json` when possible.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true

@@ -27,7 +27,13 @@ jobs:
       - run: pnpm check
       - name: Publish to npm
         if: ${{ vars.NPM_PUBLISH_ENABLED == 'true' }}
-        run: npm publish --provenance --access public
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if npm view "dsh-doctor@${version}" version >/dev/null 2>&1; then
+            echo "dsh-doctor@${version} is already published; skipping."
+          else
+            npm publish --provenance --access public
+          fi
 
   release:
     needs: publish

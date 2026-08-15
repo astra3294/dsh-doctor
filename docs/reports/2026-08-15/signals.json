@@ -1,0 +1,191 @@
+{
+  "minedAt": "2026-08-15T12:58:22.161Z",
+  "distTags": {
+    "latest": "0.1.0-rc.6",
+    "next": "0.1.0-rc.6"
+  },
+  "distTagChanged": true,
+  "newOrChangedDiscussions": 100,
+  "signals": [
+    {
+      "id": "disc-13",
+      "title": "好棒",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/13",
+      "updatedAt": "2026-08-13T13:00:38Z"
+    },
+    {
+      "id": "disc-14",
+      "title": "求一个memory能力",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/14",
+      "updatedAt": "2026-08-15T09:30:49Z"
+    },
+    {
+      "id": "disc-15",
+      "title": "deepseek harness企微无法添加",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/15",
+      "updatedAt": "2026-08-13T14:20:53Z"
+    },
+    {
+      "id": "disc-16",
+      "title": "飞书的调查问卷 昵称不能写中文和英文",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/16",
+      "updatedAt": "2026-08-13T13:02:01Z"
+    },
+    {
+      "id": "disc-17",
+      "title": "前排观望！",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/17",
+      "updatedAt": "2026-08-13T13:04:47Z"
+    },
+    {
+      "id": "disc-18",
+      "title": "观望（沙发🐋）",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/18",
+      "updatedAt": "2026-08-13T13:06:57Z"
+    },
+    {
+      "id": "disc-19",
+      "title": "做 MAC 原生 APP 吗？",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/19",
+      "updatedAt": "2026-08-13T15:27:23Z"
+    },
+    {
+      "id": "disc-20",
+      "title": "DeepSeek 加油",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/20",
+      "updatedAt": "2026-08-13T13:05:12Z"
+    },
+    {
+      "id": "disc-21",
+      "title": "前排打卡，DeepSeek继续冲~",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/21",
+      "updatedAt": "2026-08-13T13:06:49Z"
+    },
+    {
+      "id": "disc-22",
+      "title": "dsh yyds :)",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/22",
+      "updatedAt": "2026-08-13T13:07:58Z"
+    },
+    {
+      "id": "disc-23",
+      "title": "终于等到你！",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/23",
+      "updatedAt": "2026-08-13T13:07:20Z"
+    },
+    {
+      "id": "disc-24",
+      "title": "前排 前排",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/24",
+      "updatedAt": "2026-08-13T13:07:37Z"
+    },
+    {
+      "id": "disc-25",
+      "title": "企业微信被腾讯风控了，无法添加",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/25",
+      "updatedAt": "2026-08-13T14:02:28Z"
+    },
+    {
+      "id": "disc-26",
+      "title": "牛逼",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/26",
+      "updatedAt": "2026-08-13T13:07:48Z"
+    },
+    {
+      "id": "disc-27",
+      "title": "前排打卡👀加油小鲸鱼🐳",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/27",
+      "updatedAt": "2026-08-13T13:07:49Z"
+    },
+    {
+      "id": "disc-28",
+      "title": "前排打卡，鉴于pro能力不行，只能叫你小鲸鱼和梁子了",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/28",
+      "updatedAt": "2026-08-13T13:09:13Z"
+    },
+    {
+      "id": "disc-29",
+      "title": "dsh web对话过程中似乎没办法切换使用模式",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/29",
+      "updatedAt": "2026-08-13T13:29:50Z"
+    },
+    {
+      "id": "disc-30",
+      "title": "！错误！无法打开文件夹  directory picker failed: directory picker failed: win32 folder dialog worker exited before reporting a result",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/30",
+      "updatedAt": "2026-08-15T09:21:28Z"
+    },
+    {
+      "id": "disc-31",
+      "title": "终于等到你",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/31",
+      "updatedAt": "2026-08-13T13:10:28Z"
+    },
+    {
+      "id": "disc-32",
+      "title": "梁神后面会打折或者开coding plan吗，现在涨价吃不消啊😭",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/32",
+      "updatedAt": "2026-08-14T14:27:59Z"
+    },
+    {
+      "id": "disc-33",
+      "title": "打卡，梁，晚上好🤪",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/33",
+      "updatedAt": "2026-08-13T13:11:11Z"
+    },
+    {
+      "id": "disc-34",
+      "title": "ds接dsh不会效果爆炸吧",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/34",
+      "updatedAt": "2026-08-13T13:55:28Z"
+    },
+    {
+      "id": "disc-35",
+      "title": "爱你梁圣！",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/35",
+      "updatedAt": "2026-08-14T03:44:10Z"
+    },
+    {
+      "id": "disc-36",
+      "title": "打卡",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/36",
+      "updatedAt": "2026-08-13T13:11:52Z"
+    },
+    {
+      "id": "disc-37",
+      "title": "Windows 11 下 Firefox 中\"添加工作区\"的原生目录选择对话框在后台弹出（Brave 正常）",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/37",
+      "updatedAt": "2026-08-13T13:11:59Z"
+    },
+    {
+      "id": "disc-38",
+      "title": "无法打开文件夹",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/38",
+      "updatedAt": "2026-08-13T13:14:52Z"
+    },
+    {
+      "id": "disc-39",
+      "title": "喵喵喵",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/39",
+      "updatedAt": "2026-08-13T13:13:26Z"
+    },
+    {
+      "id": "disc-40",
+      "title": "会话归档后无法查看已归档的会话,并进行恢复.",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/40",
+      "updatedAt": "2026-08-14T10:05:49Z"
+    },
+    {
+      "id": "disc-41",
+      "title": "本人在此声明，所有黑deepseek的言论都是我发的",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/41",
+      "updatedAt": "2026-08-13T13:14:21Z"
+    },
+    {
+      "id": "disc-42",
+      "title": "粘贴文本优化",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/42",
+      "updatedAt": "2026-08-13T16:32:43Z"
+    }
+  ]
+}

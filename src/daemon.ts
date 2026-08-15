@@ -63,12 +63,12 @@ export async function daemonStatus(dshHomeInput?: string, port = DEFAULT_WEB_POR
 }
 
 /** Start the Harness detached, logging to the Doctor run directory. */
-export async function daemonStart(dshHomeInput?: string): Promise<{ pid: number; logFile: string }> {
+export async function daemonStart(dshHomeInput?: string, profile = 'web'): Promise<{ pid: number; logFile: string }> {
   const dshHome = resolveDshHome(dshHomeInput)
   await ensurePrivateDir(runDir(dshHome))
   const handle = await open(logFile(dshHome), 'a')
   const command = process.platform === 'win32' ? 'dsh.cmd' : 'dsh'
-  const child = spawn(command, [], {
+  const child = spawn(command, ['--profile', profile], {
     detached: true,
     stdio: ['ignore', handle.fd, handle.fd],
     windowsHide: true,

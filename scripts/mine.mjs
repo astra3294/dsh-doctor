@@ -39,7 +39,8 @@ const seenFile = join(process.cwd(), 'docs', 'reports', 'latest-seen.json')
 const seen = existsSync(seenFile) ? JSON.parse(readFileSync(seenFile, 'utf8')) : { discussions: {}, distTag: '' }
 
 const fresh = discussionSignals.filter(signal => seen.discussions[signal.id] !== signal.updatedAt)
-const distTagChanged = seen.distTag !== distTags.latest
+// First run only baselines the watermark; it is not a release event.
+const distTagChanged = seen.distTag !== '' && seen.distTag !== distTags.latest
 
 const payload = {
   minedAt: new Date().toISOString(),

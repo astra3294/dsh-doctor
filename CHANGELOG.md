@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1 — 2026-08-15
+
+### Fixes (first community bug report, issue #3)
+
+- `probeBoot`, `launch`, and `start` now spawn `dsh --profile <name>` instead of bare `dsh` — the launcher requires the profile, so the boot probe always failed on machines where it is mandatory. Reported by the community with a full root-cause analysis and a redacted `report` output.
+- The mining loop no longer reports a phantom "new DSH release" on its first baseline run (an empty watermark is no longer treated as a dist-tag change).
+
 ## 0.4.0 — 2026-08-15
 
 ### Developer workflow (plugin ecosystem tooling)

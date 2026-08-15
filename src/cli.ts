@@ -49,10 +49,10 @@ function outputBootProbe(result: BootProbeResult, label: string): void {
   if (result.evidence !== undefined) process.stdout.write(`  ${result.evidence}\n`)
 }
 
-function runDshInherit(): Promise<number | null> {
+function runDshInherit(profile: string): Promise<number | null> {
   return new Promise(resolvePromise => {
     const command = process.platform === 'win32' ? 'dsh.cmd' : 'dsh'
-    const child = spawn(command, [], { stdio: 'inherit', windowsHide: false })
+    const child = spawn(command, ['--profile', profile], { stdio: 'inherit', windowsHide: false })
     child.once('error', () => resolvePromise(null))
     child.once('exit', code => resolvePromise(code))
   })
@@ -276,7 +276,9 @@ program.command('self-update')
 
 program.command('start')
   .description('Start the Harness detached; logs go to the Doctor run directory')
-  .action(async () => {
+  .option('-p, --profile <name>', 'profile to start', DEFAULT_PROFILE)
+  .action(async (options: { profile?: string }) => {
+    const profile = options.profile ?? DEFAULT_PROFILE
     const status = await daemonStatus()
     if (status.running || status.portOpen) {
       process.stderr.write(`A Harness instance already runs (pid ${status.pid ?? 'unknown'}, port open: ${String(status.portOpen)}).\n`)
@@ -284,7 +286,7 @@ program.command('start')
       process.exitCode = 1
       return
     }
-    const started = await daemonStart()
+    const started = await daemonStart(undefined, profile)
     process.stdout.write(`Started Harness (pid ${String(started.pid)}). Logs: ${started.logFile}\n`)
     process.stdout.write('Track it with `dsh-doctor status`, stop it with `dsh-doctor stop`.\n')
   })
@@ -497,7 +499,8 @@ program.command('launch')
   .option('-p, --profile <name>', 'profile to recover when boot fails', DEFAULT_PROFILE)
   .option('--auto-recover', 'apply confirmed recovery and relaunch once when boot fails')
   .action(async (options: { profile?: string; autoRecover?: boolean }) => {
-    let code = await runDshInherit()
+    const profile = options.profile ?? DEFAULT_PROFILE
+    let code = await runDshInherit(profile)
     if (code === null) {
       process.stderr.write('Failed to launch dsh (command not found on PATH?).\n')
       process.exitCode = 2
@@ -506,7 +509,7 @@ program.command('launch')
     if (code === 0) return
     process.stderr.write(`\nThe Harness exited with code ${String(code)} during boot.\n`)
     if (options.autoRecover !== true) {
-      const probe = await probeBoot({ profile: options.profile ?? DEFAULT_PROFILE, timeoutMs: 30000 })
+      const probe = await probeBoot({ profile, timeoutMs: 30000 })
       if (probe.status === 'failed' || probe.status === 'timeout') {
         for (const item of probe.issues) process.stderr.write(`[${item.code}] ${item.title}: ${item.message}\n`)
       }
@@ -516,7 +519,7 @@ program.command('launch')
     }
     process.stderr.write('Running Doctor recovery…\n')
     const outcome = await recoverOnce({
-      profile: options.profile ?? DEFAULT_PROFILE,
+      profile,
       confirmed: true, online: false, includePaths: false, bootTimeoutMs: 60000, port: DEFAULT_WEB_PORT,
     })
     if (outcome.run.phase === 'failed') {
@@ -525,7 +528,7 @@ program.command('launch')
       return
     }
     process.stderr.write('Recovery succeeded; relaunching the Harness…\n')
-    code = await runDshInherit()
+    code = await runDshInherit(profile)
     process.exitCode = code === 0 ? 0 : 1
   })
 

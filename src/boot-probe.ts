@@ -129,6 +129,16 @@ export function analyzeBootFailure(output: string, options: { port: number; dshH
 }
 
 /**
+ * The spawn command for the probe. A real `dsh` requires the profile: the
+ * launcher exits with `--profile <name> is required` when invoked bare
+ * (community report: issue #3). Custom commands (tests) pass through as-is.
+ */
+export function probeCommand(command: readonly string[] | undefined, profile: string | undefined, platform = process.platform): string[] {
+  if (command !== undefined) return [...command]
+  return [platform === 'win32' ? 'dsh.cmd' : 'dsh', '--profile', profile ?? 'web']
+}
+
+/**
  * Spawn `dsh` and decide whether it boots: the WebUI port opening is the
  * success signal; a fast non-zero exit is a failure whose output becomes the
  * forensic evidence. The probe process is always reaped.
@@ -141,8 +151,8 @@ export async function probeBoot(options: BootProbeOptions = {}): Promise<BootPro
     return { status: 'already-running', port, issues: [] }
   }
 
-  const parts = options.command ?? [process.platform === 'win32' ? 'dsh.cmd' : 'dsh']
-  const child = spawn(parts[0] ?? (process.platform === 'win32' ? 'dsh.cmd' : 'dsh'), parts.slice(1), {
+  const spawnArgs = probeCommand(options.command, options.profile)
+  const child = spawn(spawnArgs[0] ?? 'dsh', spawnArgs.slice(1), {
     cwd: options.dshHome,
     env: { ...process.env, ...(options.dshHome === undefined ? {} : { DSH_HOME: options.dshHome }) },
     stdio: ['ignore', 'pipe', 'pipe'],

@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { afterEach, describe, expect, it } from 'vitest'
-import { analyzeBootFailure, probeBoot } from '../src/boot-probe.js'
+import { analyzeBootFailure, probeBoot, probeCommand } from '../src/boot-probe.js'
 
 const roots: string[] = []
 
@@ -64,5 +64,17 @@ describe('probeBoot', () => {
     const result = await probeBoot({ command: [process.execPath, script], port, timeoutMs: 15000 })
     expect(result.status).toBe('failed')
     expect(result.issues.map(item => item.code)).toContain('CORDIS_PATCH_INVALID')
+  })
+})
+
+describe('probeCommand (issue #3 regression)', () => {
+  it('passes --profile for a real dsh invocation', () => {
+    expect(probeCommand(undefined, 'web', 'win32')).toEqual(['dsh.cmd', '--profile', 'web'])
+    expect(probeCommand(undefined, 'headless', 'linux')).toEqual(['dsh', '--profile', 'headless'])
+    expect(probeCommand(undefined, undefined, 'linux')).toEqual(['dsh', '--profile', 'web'])
+  })
+
+  it('passes custom commands through untouched (test harnesses)', () => {
+    expect(probeCommand(['node', 'fake.js'], 'web', 'win32')).toEqual(['node', 'fake.js'])
   })
 })

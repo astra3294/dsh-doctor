@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 — 2026-08-15
+
+### Developer workflow (plugin ecosystem tooling)
+
+- New `dsh-doctor check-plugin <dir>`: static pre-publish examination covering the four ecosystem-radar dimensions — patch shape (YAML/top-level array/bare drive paths/name-vs-package), seam symbols (the object-shaped `inject` pitfall), peerDependencies vs the installed version line, build artifacts — plus a secret scan. Optional `--radar` queries the community compatibility matrix for the plugin's recorded status.
+- New `dsh-doctor release`: pre-publish checklist (version, CHANGELOG section, git tag, npm registry — mirrors are read-only, build artifacts).
+- New `dsh-doctor dev [dir] [--command] [--restart]`: watches a plugin directory, rebuilds on change, and optionally restarts the daemonized Harness — the HMR-free third-party development loop.
+
 ## 0.3.0 — 2026-08-15
 
 ### Self-updating knowledge layer

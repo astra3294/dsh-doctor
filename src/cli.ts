@@ -1,11 +1,12 @@
 import { spawn, spawnSync } from 'node:child_process'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, watch, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { Command, CommanderError } from 'commander'
 import semver from 'semver'
 import { DEFAULT_PROFILE, DEFAULT_WEB_PORT, DOCTOR_VERSION } from './constants.js'
 import { probeBoot, type BootProbeResult } from './boot-probe.js'
+import { checkPlugin, type PluginFinding } from './check-plugin.js'
 import { daemonStart, daemonStatus, daemonStop } from './daemon.js'
 import { DoctorEngine } from './repair.js'
 import { summarizeIssues } from './scanner.js'
@@ -312,6 +313,128 @@ program.command('status')
       process.stdout.write(`Logs: ${status.logFile}\n`)
     }
     process.exitCode = status.running || status.portOpen ? 0 : 1
+  })
+
+program.command('check-plugin')
+  .description('Static pre-publish examination of a plugin directory (patch / seam / peers / build / secrets)')
+  .argument('<plugin-dir>', 'path to the plugin package')
+  .option('--json', 'emit machine-readable JSON')
+  .option('--radar', 'also query the ecosystem compatibility radar')
+  .action(async (pluginDir: string, options: { json?: boolean; radar?: boolean }) => {
+    const directory = resolve(pluginDir)
+    const findings = await checkPlugin(directory, resolveDshHome())
+    const emit = (finding: PluginFinding) => {
+      const marker = finding.level === 'danger' ? 'DANGER' : finding.level === 'warn' ? 'WARN' : 'OK'
+      return `[${marker}] ${finding.check}: ${finding.message}`
+    }
+    if (options.json) process.stdout.write(`${JSON.stringify(findings, null, 2)}\n`)
+    else for (const finding of findings) process.stdout.write(`${emit(finding)}\n`)
+    if (options.radar) {
+      try {
+        const manifestRaw = readFileSync(join(directory, 'package.json'), 'utf8')
+        const name = (JSON.parse(manifestRaw) as { name?: string }).name ?? ''
+        const response = await fetch('https://raw.githubusercontent.com/AdamPlatin123/awesome-dsh-plugins/main/PLUGINS.md', { signal: AbortSignal.timeout(20_000) })
+        if (response.ok) {
+          const radar = await response.text()
+          const matches = radar.split(/\r?\n/).filter(line => line.includes(name)).slice(0, 3)
+          process.stdout.write('\n=== Ecosystem radar ===\n')
+          if (matches.length === 0) process.stdout.write(`No recorded compatibility entry for ${name}.\n`)
+          else for (const line of matches) process.stdout.write(`${line.trim()}\n`)
+        }
+      } catch {
+        process.stdout.write('\n=== Ecosystem radar ===\nUnavailable (offline or radar fetch failed).\n')
+      }
+    }
+    process.exitCode = findings.some(finding => finding.level === 'danger') ? 1 : 0
+  })
+
+interface ReleaseCheck {
+  level: 'ok' | 'danger'
+  name: string
+  message: string
+}
+
+program.command('release')
+  .description('Pre-publish release examination (registry, changelog, tag, artifacts)')
+  .action(async () => {
+    const checks: ReleaseCheck[] = []
+    const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as {
+      version?: string; main?: string; repository?: { url?: string }
+    }
+    checks.push(pkg.version === undefined
+      ? { level: 'danger', name: 'version', message: 'package.json has no version.' }
+      : { level: 'ok', name: 'version', message: `version ${pkg.version}` })
+
+    if (pkg.version !== undefined) {
+      const changelog = readFileSync('CHANGELOG.md', 'utf8')
+      checks.push(changelog.includes(`## ${pkg.version}`)
+        ? { level: 'ok', name: 'changelog', message: `CHANGELOG covers ${pkg.version}.` }
+        : { level: 'danger', name: 'changelog', message: `CHANGELOG.md has no section for ${pkg.version}.` })
+      const tag = spawnSync('git', ['rev-parse', '--verify', `refs/tags/v${pkg.version}`], { encoding: 'utf8' })
+      checks.push(tag.status === 0
+        ? { level: 'ok', name: 'tag', message: `tag v${pkg.version} exists.` }
+        : { level: 'danger', name: 'tag', message: `tag v${pkg.version} is missing — the CI release workflow triggers on it.` })
+    }
+
+    const registry = spawnSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['config', 'get', 'registry'], { encoding: 'utf8', shell: process.platform === 'win32' })
+    const registryValue = (registry.stdout ?? '').trim()
+    checks.push(registryValue === 'https://registry.npmjs.org/'
+      ? { level: 'ok', name: 'registry', message: 'registry is the official npm registry.' }
+      : { level: 'danger', name: 'registry', message: `registry is ${registryValue === '' ? 'unknown (npm unavailable)' : registryValue} — mirrors are read-only; publish against https://registry.npmjs.org explicitly.` })
+
+    if (pkg.main !== undefined) {
+      checks.push(existsSync(pkg.main)
+        ? { level: 'ok', name: 'artifacts', message: `entry ${pkg.main} exists.` }
+        : { level: 'danger', name: 'artifacts', message: `entry ${pkg.main} is missing — run the build first.` })
+    }
+
+    for (const check of checks) process.stdout.write(`[${check.level === 'danger' ? 'DANGER' : 'OK'}] ${check.name}: ${check.message}\n`)
+    process.stdout.write('\nWhen all checks pass: `npm publish --provenance --access public` (CI) or `npm publish --otp <code>` (local, 2FA).\n')
+    process.exitCode = checks.some(check => check.level === 'danger') ? 1 : 0
+  })
+
+program.command('dev')
+  .description('Watch a plugin directory: rebuild on change, optionally restart the Harness')
+  .argument('[plugin-dir]', 'plugin directory to watch', '.')
+  .option('--command <cmd>', 'build command to run on change', 'pnpm build')
+  .option('--restart', 'restart the daemonized Harness after each successful build')
+  .action((pluginDir: string, options: { command?: string; restart?: boolean }) => {
+    const directory = resolve(pluginDir)
+    const build = options.command ?? 'pnpm build'
+    let building = false
+    let pending = false
+    const runBuild = () => {
+      if (building) { pending = true; return }
+      building = true
+      const result = spawnSync(build, { cwd: directory, shell: true, stdio: 'inherit', windowsHide: true })
+      building = false
+      if (result.status !== 0) {
+        process.stdout.write(`[dev] build failed (exit ${String(result.status)})\n`)
+        return
+      }
+      process.stdout.write(`[dev] build ok at ${new Date().toLocaleTimeString()} — refresh the WebUI${options.restart ? ' and restarting the Harness' : ''}\n`)
+      if (options.restart) {
+        void (async () => {
+          const status = await daemonStatus()
+          if (status.running) {
+            await daemonStop()
+            await daemonStart()
+            process.stdout.write('[dev] Harness restarted.\n')
+          }
+        })()
+      }
+      if (pending) { pending = false; runBuild() }
+    }
+    process.stdout.write(`[dev] watching ${directory} — command: ${build}\n`)
+    try {
+      watch(directory, { recursive: true }, (_event, filename) => {
+        if (filename == null || /(?:node_modules|lib[\\/]|dist[\\/]|\.git[\\/])/.test(filename)) return
+        runBuild()
+      })
+    } catch (error) {
+      process.stderr.write(`[dev] watch failed: ${String(error)}\n`)
+      process.exitCode = 2
+    }
   })
 
 program.command('report')

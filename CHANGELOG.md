@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.2 — 2026-08-15
+
+### Near-hot upgrade loop
+
+- New `dsh-doctor restart`: stop + start the daemonized Harness in one command (~2-3s), so loading a new Host build no longer means juggling terminals.
+- `self-update --apply --restart`: upgrade the Doctor package and restart the daemon in one shot.
+- Honest answer on hot reload: the Cordis loader exposes no per-entry reload API and the Harness HMR only watches its own monorepo, so a third-party Host plugin cannot hot-swap in-process today. `dsh-doctor dev --restart` + daemon mode is the closest loop: rebuild → auto-restart (~3s) → page refresh.
+
 ## 0.4.1 — 2026-08-15
 
 ### Fixes (first community bug report, issue #3)

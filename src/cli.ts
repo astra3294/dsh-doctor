@@ -247,8 +247,9 @@ program.command('update')
 program.command('self-update')
   .description('Upgrade the Doctor package itself in the active profile')
   .option('--apply', 'install the latest version into the profile now')
+  .option('--restart', 'restart the daemonized Harness after a successful install')
   .option('--json', 'emit machine-readable JSON')
-  .action(async (options: { apply?: boolean; json?: boolean }) => {
+  .action(async (options: { apply?: boolean; json?: boolean; restart?: boolean }) => {
     let latest: string
     try {
       const response = await fetch('https://registry.npmjs.org/dsh-doctor/latest', { signal: AbortSignal.timeout(10_000) })
@@ -271,7 +272,19 @@ program.command('self-update')
       process.exitCode = 1
       return
     }
-    process.stdout.write(`Installed dsh-doctor@${latest} into the profile. Restart the Harness to load it.\n`)
+    process.stdout.write(`Installed dsh-doctor@${latest} into the profile.\n`)
+    if (options.restart) {
+      const status = await daemonStatus()
+      if (status.running) {
+        await daemonStop()
+        const started = await daemonStart(undefined, DEFAULT_PROFILE)
+        process.stdout.write(`Harness restarted (pid ${String(started.pid)}) — the new version is live.\n`)
+      } else {
+        process.stdout.write('The Harness was not running as a daemon; start it with `dsh-doctor start`.\n')
+      }
+    } else {
+      process.stdout.write('Restart the Harness to load it (or use `dsh-doctor restart` / `self-update --apply --restart`).\n')
+    }
   })
 
 program.command('start')
@@ -315,6 +328,17 @@ program.command('status')
       process.stdout.write(`Logs: ${status.logFile}\n`)
     }
     process.exitCode = status.running || status.portOpen ? 0 : 1
+  })
+
+program.command('restart')
+  .description('Restart the daemonized Harness in one command (stop + start)')
+  .option('-p, --profile <name>', 'profile to start', DEFAULT_PROFILE)
+  .action(async (options: { profile?: string }) => {
+    const profile = options.profile ?? DEFAULT_PROFILE
+    const stopped = await daemonStop()
+    if (stopped) process.stdout.write('Stopped the previous instance.\n')
+    const started = await daemonStart(undefined, profile)
+    process.stdout.write(`Restarted Harness (pid ${String(started.pid)}). Logs: ${started.logFile}\n`)
   })
 
 program.command('check-plugin')

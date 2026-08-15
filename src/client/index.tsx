@@ -237,6 +237,25 @@ class DoctorController {
     }
   }
 
+  /**
+   * In-process restart: fire-and-forget RPC (the Host exits before the
+   * response can be relied on), then poll for the new instance and reload
+   * the page once it answers again.
+   */
+  restart(): void {
+    this.patch({ busy: true, phase: 'restarting', error: undefined })
+    void this.connection.rpc.call(RPC_CHANNEL, 'restart', {}).catch(() => {})
+    const deadline = Date.now() + 90_000
+    const poll = setInterval(() => {
+      void fetch(window.location.href, { method: 'HEAD', cache: 'no-store' }).then(() => {
+        clearInterval(poll)
+        window.location.reload()
+      }).catch(() => {
+        if (Date.now() > deadline) clearInterval(poll)
+      })
+    }, 2000)
+  }
+
   private patch(next: Partial<ControllerSnapshot>): void {
     this.snapshot = { ...this.snapshot, ...next }
     for (const listener of this.listeners) listener()
@@ -338,6 +357,13 @@ function RecoveryActions({ controller, snapshot, t }: SharedProps & { snapshot: 
       <div className="dshDoctorActions">
         <Button variant="primary" disabled={snapshot.busy} onClick={() => { void controller.recover(false) }}>{t('recover')}</Button>
         <Button variant="ghost" disabled={snapshot.busy} icon={<IconRefreshOutline16 size={14} />} aria-label={t('scan')} onClick={() => { void controller.scan(true) }}>{t('scan')}</Button>
+      </div>
+      <div className="dshDoctorNotice">
+        <h3>{t('restart.title')}</h3>
+        <p className="dshDoctorEmpty">{t('restart.description')}</p>
+        <div className="dshDoctorActions">
+          <Button variant="outline" disabled={snapshot.busy} onClick={() => controller.restart()}>{t('restartHarness')}</Button>
+        </div>
       </div>
       {snapshot.confirmationActions.length > 0 ? (
         <div className="dshDoctorNotice">
@@ -491,10 +517,13 @@ const en: Record<string, string> = {
   'health.healthy': 'Healthy', 'health.warning': 'Warnings found', 'health.error': 'Problems found', 'health.unknown': 'Not checked',
   'phase.ready': 'Ready to check', 'phase.checkpointing': 'Creating a checkpoint', 'phase.scanning': 'Scanning',
   'phase.repairing': 'Applying safe repairs', 'phase.verifying': 'Verifying', 'phase.recovered': 'Recovered',
+  'phase.restarting': 'Restarting the Harness…',
   'phase.restart-required': 'Recovered; restart required', 'phase.needs-attention': 'Needs your attention', 'phase.failed': 'Recovery failed',
   'summary.ready': 'Doctor runs outside the Agent loop and can recover the active profile.',
   'summary.unavailable': 'The Host recovery service is unreachable. Use the external rescue command.', 'summary.issues': 'Issue summary',
   'confirmation.title': 'These changes need confirmation', 'confirmation.apply': 'Confirm and apply',
+  'restart.title': 'Restart the Harness', 'restart.description': 'Restart the whole Harness process from this page; the tab reloads automatically when it is back. Saved conversations are kept.',
+  'restartHarness': 'Restart Harness',
   'probe.title': 'Verify the real model connection?', 'probe.description': 'This sends a tiny non-session request and may incur a very small API charge.',
   'probe.run': 'Run live probe', 'probe.skip': 'Skip', 'probe.passed': 'Live probe passed', 'probe.failed': 'Live probe failed', 'probe.unavailable': 'Live probe skipped or unavailable',
   'settings.description': 'Diagnostics, recovery history, and protected rollback checkpoints.',
@@ -510,10 +539,13 @@ const zh: Record<string, string> = {
   'health.healthy': '状态正常', 'health.warning': '发现警告', 'health.error': '发现故障', 'health.unknown': '尚未检查',
   'phase.ready': '准备检查', 'phase.checkpointing': '正在创建备份', 'phase.scanning': '正在扫描',
   'phase.repairing': '正在执行安全修复', 'phase.verifying': '正在验证', 'phase.recovered': '已经恢复',
+  'phase.restarting': '正在重启 Harness…',
   'phase.restart-required': '已经修复，需要重启', 'phase.needs-attention': '需要你的处理', 'phase.failed': '恢复失败',
   'summary.ready': 'Doctor 独立于 Agent 对话循环，可直接救援当前 profile。',
   'summary.unavailable': '无法连接 Host 救援服务，请使用外部救援命令。', 'summary.issues': '问题汇总',
   'confirmation.title': '以下修改需要确认', 'confirmation.apply': '确认并执行',
+  'restart.title': '重启 Harness', 'restart.description': '从页面直接重启整个 Harness 进程；恢复后本页会自动刷新，已保存的对话不受影响。',
+  'restartHarness': '重启 Harness',
   'probe.title': '是否验证真实模型连接？', 'probe.description': '这会发送一次极小的非会话请求，可能产生少量 API 费用。',
   'probe.run': '进行真实验证', 'probe.skip': '暂不验证', 'probe.passed': '真实验证通过', 'probe.failed': '真实验证失败', 'probe.unavailable': '已跳过或无法进行真实验证',
   'settings.description': '查看诊断结果、修复记录和受保护的回滚检查点。',

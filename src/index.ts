@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { RPC_CHANNEL } from './constants.js'
 import { DoctorService } from './service.js'
+import { scheduleRestart } from './restart.js'
 import type { ApplyPlanOptions, RuntimeModelStatus, RuntimePluginEntry, ScanOptions } from './types.js'
 
 export * from './types.js'
@@ -179,6 +180,7 @@ export function apply(ctx: HostContext, config: Config = {}): void {
         case 'history': value = await service.engine.history({ dshHome: service.dshHome, profile: service.activeProfile }); break
         case 'mark-healthy': value = await service.engine.markHealthy(service.activeProfile, { dshHome: service.dshHome }); break
         case 'live-probe': value = await liveProbe(ctx, signal); break
+        case 'restart': value = scheduleRestart(service.activeProfile); break
         default: throw new Error(`unknown Doctor endpoint: ${endpoint}`)
       }
       return { ok: true, value }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.3 — 2026-08-15
+
+### Restart the Harness from the Web UI
+
+- New "Restart Harness" button in the Doctor panel (and its settings page): the Host schedules a detached relaunch helper, exits, and the page polls for the new instance and reloads automatically. One click, no terminal.
+
 ## 0.4.2 — 2026-08-15
 
 ### Near-hot upgrade loop

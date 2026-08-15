@@ -1,0 +1,40 @@
+name: Mine community signals
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  mine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Run the miner
+        id: miner
+        run: node scripts/mine.mjs > /tmp/mine-report.md
+        continue-on-error: true
+      - name: Commit the report watermark
+        run: |
+          git config user.name "dsh-doctor-miner"
+          git config user.email "miner@users.noreply.github.com"
+          git add docs/reports
+          if ! git diff --cached --quiet; then
+            git commit -m "mine: $(date -u +%F) community signals"
+            git push
+          fi
+      - name: Open a triage issue when the DSH version changed
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -f /tmp/mine-report.md ] && grep -q 'CHANGED' /tmp/mine-report.md; then
+            gh issue create --title "[mine] new DSH release — triage signals" --body-file /tmp/mine-report.md || true
+          fi

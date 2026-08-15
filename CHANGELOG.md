@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.3.0 — 2026-08-15
+
+### Self-updating knowledge layer
+
+- New `failure-patterns.json` machine-readable catalog: every pattern with source, severity, bilingual hint, and optional data-driven detectors. Fetched catalogs override builtin ones by id — **new knowledge reaches users without a release**.
+- First data-driven detector shipped: `DSH_VERSION_LINE_MIX` (installed `@deepseek-ai` packages spanning multiple version lines — the verified dist-tag stall finding).
+- New `dsh-doctor update` command: fetches the community catalog (data only, no code executes), stores it under `$DSH_HOME/doctor/knowledge/`, and the next scan applies it.
+- New `dsh-doctor self-update [--apply]`: compares against the npm latest and installs it into the profile.
+
+### Background process management
+
+- New `dsh-doctor start|stop|status`: start the Harness detached with logs under the Doctor run directory, stop it cleanly (process tree), and check liveness — the community-requested fix for "closing the terminal kills the WebUI".
+- `boot` now warns about the dual-instance hazard (`DUAL_INSTANCE_RISK` — two instances corrupt session logs with seq gaps).
+
+### Boot probe hardening
+
+- Boot failures now map native-module prebuild gaps (`NATIVE_MODULE_MISSING`, e.g. node-pty) and `EACCES` binds to the reserved-port-range guidance (`PORT_IN_EXCLUDED_RANGE`).
+
+### Release-triggered mining loop
+
+- New `scripts/mine.mjs` + `.github/workflows/mine.yml`: polls the Harness Discussions and the `@deepseek-ai/dsh` dist-tags every 6 hours; a changed dist-tag (new DSH release) opens a triage issue automatically — intensive mining starts in the first week of every release without a human watching.
+
 ## 0.2.1 — 2026-08-15
 
 ### Mined from the community (13 new detections)

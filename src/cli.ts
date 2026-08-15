@@ -3,13 +3,16 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Command, CommanderError } from 'commander'
+import semver from 'semver'
 import { DEFAULT_PROFILE, DEFAULT_WEB_PORT, DOCTOR_VERSION } from './constants.js'
 import { probeBoot, type BootProbeResult } from './boot-probe.js'
+import { daemonStart, daemonStatus, daemonStop } from './daemon.js'
 import { DoctorEngine } from './repair.js'
 import { summarizeIssues } from './scanner.js'
 import { ISSUE_HINTS } from './hints.js'
+import { BUILTIN_PATTERNS, mergedPatterns, storeFetchedPatterns, type PatternCatalog } from './knowledge.js'
 import { buildReportPayload, renderIssueMarkdown, reportIssueUrl, rootCauseSummary } from './report.js'
-import { resolveDshHome } from './paths.js'
+import { profileRoot, resolveDshHome } from './paths.js'
 import type { DoctorIssue, DoctorScanReport } from './types.js'
 
 function outputReport(report: DoctorScanReport, json: boolean): void {
@@ -177,6 +180,9 @@ program.command('boot')
       process.stdout.write(`Boot probe: ${result.status} (port ${String(result.port)})\n`)
       for (const item of result.issues) outputIssue(item)
       if (result.evidence !== undefined) process.stdout.write(`  ${result.evidence}\n`)
+      if (result.status === 'already-running') {
+        process.stdout.write(`  ${ISSUE_HINTS.DUAL_INSTANCE_RISK?.en ?? ''}\n`)
+      }
     }
     if ((result.status === 'passed' || result.status === 'already-running') && options.markHealthy) {
       try {
@@ -197,6 +203,103 @@ program.command('checkpoint')
     const checkpoint = await new DoctorEngine().markHealthy(options.profile ?? DEFAULT_PROFILE)
     if (options.json) process.stdout.write(`${JSON.stringify(checkpoint, null, 2)}\n`)
     else process.stdout.write(`Healthy checkpoint created: ${checkpoint.id} (${checkpoint.createdAt})\n`)
+  })
+
+program.command('update')
+  .description('Fetch community failure-pattern knowledge (data only — no code runs)')
+  .option('--check', 'only report whether newer knowledge exists')
+  .option('--source <url>', 'override the knowledge catalog URL')
+  .action(async (options: { check?: boolean; source?: string }) => {
+    const source = options.source ?? 'https://raw.githubusercontent.com/astra3294/dsh-doctor/main/src/failure-patterns.json'
+    let fetched: PatternCatalog | undefined
+    try {
+      const response = await fetch(source, { signal: AbortSignal.timeout(10_000) })
+      if (!response.ok) throw new Error(`HTTP ${String(response.status)}`)
+      fetched = await response.json() as PatternCatalog
+    } catch (error) {
+      process.stderr.write(`Knowledge fetch failed (offline?): ${String(error)}\n`)
+      process.exitCode = 2
+      return
+    }
+    const builtinIds = new Set(BUILTIN_PATTERNS.patterns.map(pattern => pattern.id))
+    const fresh = fetched.patterns.filter(pattern => !builtinIds.has(pattern.id))
+    if (options.check) {
+      process.stdout.write(`${String(BUILTIN_PATTERNS.patterns.length)} builtin pattern(s), ${String(fresh.length)} new available.\n`)
+      return
+    }
+    await storeFetchedPatterns(resolveDshHome(), fetched)
+    process.stdout.write(`Knowledge updated: ${String(fresh.length)} new pattern(s), ${String(fetched.patterns.length - fresh.length)} refreshed. The next scan uses them (no restart, no release).\n`)
+  })
+
+program.command('self-update')
+  .description('Upgrade the Doctor package itself in the active profile')
+  .option('--apply', 'install the latest version into the profile now')
+  .option('--json', 'emit machine-readable JSON')
+  .action(async (options: { apply?: boolean; json?: boolean }) => {
+    let latest: string
+    try {
+      const response = await fetch('https://registry.npmjs.org/dsh-doctor/latest', { signal: AbortSignal.timeout(10_000) })
+      if (!response.ok) throw new Error(`HTTP ${String(response.status)}`)
+      latest = ((await response.json()) as { version?: string }).version ?? DOCTOR_VERSION
+    } catch (error) {
+      process.stderr.write(`Version check failed (offline?): ${String(error)}\n`)
+      process.exitCode = 2
+      return
+    }
+    const current = DOCTOR_VERSION
+    if (options.json) process.stdout.write(`${JSON.stringify({ current, latest, updateAvailable: semver.gt(latest, current) }, null, 2)}\n`)
+    else process.stdout.write(`DSH Doctor: installed ${current}, latest ${latest}${semver.gt(latest, current) ? ' (update available)' : ''}\n`)
+    if (!options.apply || !semver.gt(latest, current)) return
+    const cwd = profileRoot(resolveDshHome(), DEFAULT_PROFILE)
+    const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
+    const result = spawnSync(command, ['add', `dsh-doctor@${latest}`], { cwd, encoding: 'utf8', timeout: 180_000, windowsHide: true })
+    if (result.status !== 0) {
+      process.stderr.write(`Install failed: ${result.stderr?.trim() || `exit ${String(result.status)}`}\n`)
+      process.exitCode = 1
+      return
+    }
+    process.stdout.write(`Installed dsh-doctor@${latest} into the profile. Restart the Harness to load it.\n`)
+  })
+
+program.command('start')
+  .description('Start the Harness detached; logs go to the Doctor run directory')
+  .action(async () => {
+    const status = await daemonStatus()
+    if (status.running || status.portOpen) {
+      process.stderr.write(`A Harness instance already runs (pid ${status.pid ?? 'unknown'}, port open: ${String(status.portOpen)}).\n`)
+      process.stderr.write(`${ISSUE_HINTS.DUAL_INSTANCE_RISK?.en ?? ''}\n`)
+      process.exitCode = 1
+      return
+    }
+    const started = await daemonStart()
+    process.stdout.write(`Started Harness (pid ${String(started.pid)}). Logs: ${started.logFile}\n`)
+    process.stdout.write('Track it with `dsh-doctor status`, stop it with `dsh-doctor stop`.\n')
+  })
+
+program.command('stop')
+  .description('Stop the daemonized Harness')
+  .option('--json', 'emit machine-readable JSON')
+  .action(async (options: { json?: boolean }) => {
+    const stopped = await daemonStop()
+    if (options.json) process.stdout.write(`${JSON.stringify({ stopped }, null, 2)}\n`)
+    else process.stdout.write(stopped ? 'Harness stopped.\n' : 'No daemonized Harness was running.\n')
+  })
+
+program.command('status')
+  .description('Show the daemonized Harness status')
+  .option('--json', 'emit machine-readable JSON')
+  .action(async (options: { json?: boolean }) => {
+    const status = await daemonStatus()
+    if (options.json) process.stdout.write(`${JSON.stringify(status, null, 2)}\n`)
+    else {
+      process.stdout.write(status.running
+        ? `Running (pid ${String(status.pid)}${status.startedAt ? `, since ${status.startedAt}` : ''})\n`
+        : status.portOpen
+          ? 'A Harness is listening on the WebUI port but was not started by dsh-doctor (another instance).\n'
+          : 'Not running.\n')
+      process.stdout.write(`Logs: ${status.logFile}\n`)
+    }
+    process.exitCode = status.running || status.portOpen ? 0 : 1
   })
 
 program.command('report')

@@ -205,4 +205,16 @@ describe('mined failure patterns (0.2.1)', () => {
     const report = await scanHarness({ dshHome: root, profile: 'web', nodeVersion: 'v20.0.0' })
     expect(report.issues.map(item => item.code)).toContain('NODE_VERSION_UNSUPPORTED')
   })
+
+  it('flags mixed @deepseek-ai version lines via the knowledge layer', async () => {
+    const root = await fixture()
+    await withManifest(root, { dependencies: {} })
+    for (const entry of [['alpha', '0.0.1-rc.1'], ['beta', '0.1.0-rc.6']] as const) {
+      const [name, version] = entry
+      await mkdir(join(root, 'profiles', 'node_modules', '@deepseek-ai', name), { recursive: true })
+      await writeFile(join(root, 'profiles', 'node_modules', '@deepseek-ai', name, 'package.json'), JSON.stringify({ name: `@deepseek-ai/${name}`, version }))
+    }
+    const report = await scanHarness({ dshHome: root, profile: 'web' })
+    expect(report.issues.map(item => item.code)).toContain('DSH_VERSION_LINE_MIX')
+  })
 })

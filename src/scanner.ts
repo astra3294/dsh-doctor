@@ -9,6 +9,7 @@ import { exists, fileSize, isReadableWritable, readText } from './fs-utils.js'
 import { displayPath, safeEvidence } from './redact.js'
 import { profileRoot, resolveDshHome, safeProfileName } from './paths.js'
 import { inspectEnvironment, inspectProfilePlugins, inspectWorkspaces } from './checks.js'
+import { mergedPatterns, runKnowledgeDetectors } from './knowledge.js'
 import type {
   DoctorIssue, DoctorScanReport, DoctorSummary, ProfileReport, RuntimeModelStatus, RuntimePluginEntry, ScanOptions,
 } from './types.js'
@@ -477,6 +478,7 @@ export async function scanHarness(options: ScanOptions = {}): Promise<DoctorScan
   await inspectSessionStore(dshHome, includePaths, issues)
   await inspectWorkspaces(dshHome, includePaths, issues)
   await inspectEnvironment(dshHome, includePaths, issues, options)
+  await runKnowledgeDetectors(dshHome, await mergedPatterns(dshHome), issues)
   inspectRuntime(options.runtimeEntries ?? [], issues)
   inspectRuntimeModel(options.runtimeModel, issues)
 

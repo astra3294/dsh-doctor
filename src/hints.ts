@@ -186,6 +186,18 @@ export const ISSUE_HINTS: Readonly<Record<string, IssueHint>> = {
     en: 'Skills are disabled in the web bundle by default and fail silently. Enable them with a --patch overlay if you need skills in the Web UI.',
     zh: 'Web 版默认禁用 skill 且不报错。如果需要在 WebUI 里用 skill，用 --patch 覆盖打开。',
   },
+  DSH_VERSION_LINE_MIX: {
+    en: 'Installed @deepseek-ai packages span multiple version lines. The official latest dist-tag stalls on old lines, so bare installs mix them — lock every package to one line.',
+    zh: '已安装的 @deepseek-ai 包跨越了多条版本线。官方 latest 标签停在旧线上，裸装容易混装——把所有包锁定到同一条版本线。',
+  },
+  DUAL_INSTANCE_RISK: {
+    en: 'Two Harness instances writing the same session logs corrupt them (seq gap). Never run two instances against one DSH_HOME; use dsh-doctor start/stop to manage a single one.',
+    zh: '两个 Harness 实例同时写同一份会话日志会把它写坏（seq gap）。绝不要对同一个 DSH_HOME 跑两个实例；用 dsh-doctor start/stop 管理单实例。',
+  },
+  NATIVE_MODULE_MISSING: {
+    en: 'A native module (like node-pty) has no prebuild for this Node ABI and the boot fails. Run npm rebuild for it, or switch to an officially supported Node version.',
+    zh: '某个原生模块（如 node-pty）没有当前 Node ABI 的预编译产物导致启动失败。对它执行 npm rebuild，或换用官方支持的 Node 版本。',
+  },
 }
 
 /** Locale-dictionary entries keyed `hint.<code>` for one UI language. */

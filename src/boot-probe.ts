@@ -104,6 +104,20 @@ export function analyzeBootFailure(output: string, options: { port: number; dshH
       evidence: pluginId, recoverability: 'confirmation',
     })
   }
+  if (/Failed to load native module|pty\.node|prebuilds\//i.test(output)) {
+    issues.push({
+      code: 'NATIVE_MODULE_MISSING', severity: 'error', title: 'A native module has no prebuild for this Node',
+      message: 'A native module (such as node-pty) failed to load: its prebuild for this Node ABI is missing. Run npm rebuild for it, or switch to an officially supported Node version.',
+      evidence: redactSecrets(tail(output, 400)), recoverability: 'manual',
+    })
+  }
+  if (/EACCES/i.test(output) && /\blisten|bind\b/i.test(output)) {
+    issues.push({
+      code: 'PORT_IN_EXCLUDED_RANGE', severity: 'error', title: 'The port bind failed with EACCES',
+      message: `Binding port ${String(options.port)} was denied — on Windows this usually means the port sits in a reserved range (Hyper-V/WSL2). Start the Harness on a different port.`,
+      evidence: `port ${String(options.port)} EACCES`, recoverability: 'manual',
+    })
+  }
   if (issues.length === 0) {
     issues.push({
       code: 'BOOT_PROBE_FAILED', severity: 'error', title: 'Harness failed to start',

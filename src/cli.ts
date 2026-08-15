@@ -210,14 +210,26 @@ program.command('update')
   .option('--check', 'only report whether newer knowledge exists')
   .option('--source <url>', 'override the knowledge catalog URL')
   .action(async (options: { check?: boolean; source?: string }) => {
-    const source = options.source ?? 'https://raw.githubusercontent.com/astra3294/dsh-doctor/main/src/failure-patterns.json'
+    const sources = options.source !== undefined
+      ? [options.source]
+      : [
+        'https://raw.githubusercontent.com/astra3294/dsh-doctor/main/src/failure-patterns.json',
+        'https://cdn.jsdelivr.net/gh/astra3294/dsh-doctor@main/src/failure-patterns.json',
+      ]
     let fetched: PatternCatalog | undefined
-    try {
-      const response = await fetch(source, { signal: AbortSignal.timeout(10_000) })
-      if (!response.ok) throw new Error(`HTTP ${String(response.status)}`)
-      fetched = await response.json() as PatternCatalog
-    } catch (error) {
-      process.stderr.write(`Knowledge fetch failed (offline?): ${String(error)}\n`)
+    let lastError = 'no sources'
+    for (const source of sources) {
+      try {
+        const response = await fetch(source, { signal: AbortSignal.timeout(30_000), redirect: 'follow' })
+        if (!response.ok) throw new Error(`HTTP ${String(response.status)}`)
+        fetched = await response.json() as PatternCatalog
+        break
+      } catch (error) {
+        lastError = String(error)
+      }
+    }
+    if (fetched === undefined) {
+      process.stderr.write(`Knowledge fetch failed (offline?): ${lastError}\n`)
       process.exitCode = 2
       return
     }

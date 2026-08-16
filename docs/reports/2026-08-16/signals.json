@@ -1,17 +1,29 @@
 {
-  "minedAt": "2026-08-16T06:57:39.480Z",
+  "minedAt": "2026-08-16T12:59:37.479Z",
   "distTags": {
     "latest": "0.1.0-rc.6",
     "next": "0.1.0-rc.6"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 1,
+  "newOrChangedDiscussions": 3,
   "signals": [
     {
-      "id": "disc-76",
-      "title": "还没法--host 0.0.0.0启动啊",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/76",
-      "updatedAt": "2026-08-16T06:41:48Z"
+      "id": "disc-14",
+      "title": "求一个memory能力",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/14",
+      "updatedAt": "2026-08-16T12:02:22Z"
+    },
+    {
+      "id": "disc-30",
+      "title": "！错误！无法打开文件夹  directory picker failed: directory picker failed: win32 folder dialog worker exited before reporting a result",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/30",
+      "updatedAt": "2026-08-16T12:16:53Z"
+    },
+    {
+      "id": "disc-53",
+      "title": "Windows 平台运行快速模式时，默认调用 Linux 终端命令导致执行失败",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/53",
+      "updatedAt": "2026-08-16T09:50:48Z"
     }
   ]
 }

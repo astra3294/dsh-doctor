@@ -1,10 +1,35 @@
 {
-  "minedAt": "2026-08-17T01:54:38.939Z",
+  "minedAt": "2026-08-17T07:15:11.334Z",
   "distTags": {
     "latest": "0.1.0-rc.6",
     "next": "0.1.0-rc.6"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 0,
-  "signals": []
+  "newOrChangedDiscussions": 4,
+  "signals": [
+    {
+      "id": "disc-14",
+      "title": "求一个memory能力",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/14",
+      "updatedAt": "2026-08-17T05:12:11Z"
+    },
+    {
+      "id": "disc-15",
+      "title": "deepseek harness企微无法添加",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/15",
+      "updatedAt": "2026-08-17T07:13:07Z"
+    },
+    {
+      "id": "disc-40",
+      "title": "会话归档后无法查看已归档的会话,并进行恢复.",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/40",
+      "updatedAt": "2026-08-17T02:55:15Z"
+    },
+    {
+      "id": "disc-76",
+      "title": "还没法--host 0.0.0.0启动啊",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/76",
+      "updatedAt": "2026-08-17T03:16:28Z"
+    }
+  ]
 }

@@ -1,41 +1,23 @@
 {
-  "minedAt": "2026-08-17T13:04:36.550Z",
+  "minedAt": "2026-08-17T18:56:41.634Z",
   "distTags": {
-    "next": "0.1.0-rc.7",
-    "latest": "0.1.0-rc.6"
+    "latest": "0.1.0-rc.7",
+    "next": "0.1.0-rc.7"
   },
-  "distTagChanged": false,
-  "newOrChangedDiscussions": 5,
+  "distTagChanged": true,
+  "newOrChangedDiscussions": 2,
   "signals": [
     {
       "id": "disc-14",
       "title": "求一个memory能力",
       "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/14",
-      "updatedAt": "2026-08-17T12:46:45Z"
+      "updatedAt": "2026-08-17T13:47:49Z"
     },
     {
-      "id": "disc-25",
-      "title": "企业微信被腾讯风控了，无法添加",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/25",
-      "updatedAt": "2026-08-17T07:36:07Z"
-    },
-    {
-      "id": "disc-46",
-      "title": "无法启动 dsh // Cannot launch dsh",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/46",
-      "updatedAt": "2026-08-17T09:09:39Z"
-    },
-    {
-      "id": "disc-55",
-      "title": "pnpm add -g @deepseek-ai/dsh 安装后 dsh 无法启动：找不到 cordis-plugin-timer",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/55",
-      "updatedAt": "2026-08-17T09:50:05Z"
-    },
-    {
-      "id": "disc-104",
-      "title": "无法添加 DeepSeek Harness 企微小助手",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/104",
-      "updatedAt": "2026-08-17T07:41:27Z"
+      "id": "disc-100",
+      "title": "[Bug] dsh web fails with \"The requested module 'node:zlib' does not provide an export named 'createZstdDecompress'\"",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/100",
+      "updatedAt": "2026-08-17T17:24:42Z"
     }
   ]
 }

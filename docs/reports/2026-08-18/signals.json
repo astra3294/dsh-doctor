@@ -1,17 +1,23 @@
 {
-  "minedAt": "2026-08-18T07:03:04.714Z",
+  "minedAt": "2026-08-18T13:06:33.306Z",
   "distTags": {
     "latest": "0.1.0-rc.7",
     "next": "0.1.0-rc.7"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 1,
+  "newOrChangedDiscussions": 2,
   "signals": [
     {
-      "id": "disc-14",
-      "title": "求一个memory能力",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/14",
-      "updatedAt": "2026-08-18T04:53:03Z"
+      "id": "disc-19",
+      "title": "做 MAC 原生 APP 吗？",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/19",
+      "updatedAt": "2026-08-18T11:56:42Z"
+    },
+    {
+      "id": "disc-76",
+      "title": "还没法--host 0.0.0.0启动啊",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/76",
+      "updatedAt": "2026-08-18T09:47:32Z"
     }
   ]
 }

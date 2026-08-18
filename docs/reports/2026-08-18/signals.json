@@ -1,5 +1,5 @@
 {
-  "minedAt": "2026-08-18T13:06:33.306Z",
+  "minedAt": "2026-08-18T18:55:30.622Z",
   "distTags": {
     "latest": "0.1.0-rc.7",
     "next": "0.1.0-rc.7"
@@ -8,16 +8,16 @@
   "newOrChangedDiscussions": 2,
   "signals": [
     {
-      "id": "disc-19",
-      "title": "做 MAC 原生 APP 吗？",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/19",
-      "updatedAt": "2026-08-18T11:56:42Z"
+      "id": "disc-14",
+      "title": "求一个memory能力",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/14",
+      "updatedAt": "2026-08-18T13:54:47Z"
     },
     {
-      "id": "disc-76",
-      "title": "还没法--host 0.0.0.0启动啊",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/76",
-      "updatedAt": "2026-08-18T09:47:32Z"
+      "id": "disc-55",
+      "title": "pnpm add -g @deepseek-ai/dsh 安装后 dsh 无法启动：找不到 cordis-plugin-timer",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/55",
+      "updatedAt": "2026-08-18T14:20:10Z"
     }
   ]
 }

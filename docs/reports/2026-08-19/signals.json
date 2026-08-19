@@ -1,10 +1,17 @@
 {
-  "minedAt": "2026-08-19T13:07:42.222Z",
+  "minedAt": "2026-08-19T18:52:26.187Z",
   "distTags": {
-    "latest": "0.1.0-rc.7",
-    "next": "0.1.0-rc.7"
+    "next": "0.1.0-rc.8",
+    "latest": "0.1.0-rc.7"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 0,
-  "signals": []
+  "newOrChangedDiscussions": 1,
+  "signals": [
+    {
+      "id": "disc-68",
+      "title": "如何优雅的迁移现有插件到deepseek-harness",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/68",
+      "updatedAt": "2026-08-19T14:53:55Z"
+    }
+  ]
 }

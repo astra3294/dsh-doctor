@@ -1,10 +1,17 @@
 {
-  "minedAt": "2026-08-20T07:05:24.125Z",
+  "minedAt": "2026-08-20T13:10:15.235Z",
   "distTags": {
     "next": "0.1.0-rc.8",
     "latest": "0.1.0-rc.7"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 0,
-  "signals": []
+  "newOrChangedDiscussions": 1,
+  "signals": [
+    {
+      "id": "disc-91",
+      "title": "会考虑做系统原生GUI吗",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/91",
+      "updatedAt": "2026-08-20T08:05:06Z"
+    }
+  ]
 }

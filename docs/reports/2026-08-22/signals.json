@@ -1,10 +1,17 @@
 {
-  "minedAt": "2026-08-22T12:59:42.192Z",
+  "minedAt": "2026-08-22T18:47:52.527Z",
   "distTags": {
     "latest": "0.1.1-rc.2",
     "next": "0.1.1-rc.2"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 0,
-  "signals": []
+  "newOrChangedDiscussions": 1,
+  "signals": [
+    {
+      "id": "disc-106",
+      "title": "获取可用模型不可以全部反选",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/106",
+      "updatedAt": "2026-08-22T16:24:03Z"
+    }
+  ]
 }

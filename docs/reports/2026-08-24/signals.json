@@ -1,10 +1,17 @@
 {
-  "minedAt": "2026-08-24T07:19:23.473Z",
+  "minedAt": "2026-08-24T13:12:08.224Z",
   "distTags": {
     "latest": "0.1.1-rc.2",
     "next": "0.1.1-rc.2"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 0,
-  "signals": []
+  "newOrChangedDiscussions": 1,
+  "signals": [
+    {
+      "id": "disc-76",
+      "title": "还没法--host 0.0.0.0启动啊",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/76",
+      "updatedAt": "2026-08-24T10:41:13Z"
+    }
+  ]
 }

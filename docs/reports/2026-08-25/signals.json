@@ -1,10 +1,29 @@
 {
-  "minedAt": "2026-08-25T01:51:25.624Z",
+  "minedAt": "2026-08-25T07:07:13.921Z",
   "distTags": {
     "latest": "0.1.1-rc.2",
     "next": "0.1.1-rc.2"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 0,
-  "signals": []
+  "newOrChangedDiscussions": 3,
+  "signals": [
+    {
+      "id": "disc-45",
+      "title": "来给CIL 端。来个TUI",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/45",
+      "updatedAt": "2026-08-25T05:48:03Z"
+    },
+    {
+      "id": "disc-48",
+      "title": "未来会出cli版本吗？还是cli用得顺手",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/48",
+      "updatedAt": "2026-08-25T05:48:05Z"
+    },
+    {
+      "id": "disc-102",
+      "title": "会有cli版本吗？",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/102",
+      "updatedAt": "2026-08-25T05:48:07Z"
+    }
+  ]
 }

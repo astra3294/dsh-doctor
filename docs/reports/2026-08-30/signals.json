@@ -1,0 +1,119 @@
+{
+  "minedAt": "2026-08-30T05:22:18.930Z",
+  "distTags": {
+    "latest": "0.1.1-rc.2",
+    "next": "0.1.1-rc.2"
+  },
+  "distTagChanged": false,
+  "newOrChangedDiscussions": 18,
+  "signals": [
+    {
+      "id": "disc-14",
+      "title": "求一个memory能力",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/14",
+      "updatedAt": "2026-08-30T02:02:22Z"
+    },
+    {
+      "id": "disc-29",
+      "title": "dsh web对话过程中似乎没办法切换使用模式",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/29",
+      "updatedAt": "2026-08-30T02:43:22Z"
+    },
+    {
+      "id": "disc-30",
+      "title": "！错误！无法打开文件夹  directory picker failed: directory picker failed: win32 folder dialog worker exited before reporting a result",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/30",
+      "updatedAt": "2026-08-30T02:45:31Z"
+    },
+    {
+      "id": "disc-37",
+      "title": "Windows 11 下 Firefox 中\"添加工作区\"的原生目录选择对话框在后台弹出（Brave 正常）",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/37",
+      "updatedAt": "2026-08-30T02:03:34Z"
+    },
+    {
+      "id": "disc-46",
+      "title": "无法启动 dsh // Cannot launch dsh",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/46",
+      "updatedAt": "2026-08-30T02:47:49Z"
+    },
+    {
+      "id": "disc-49",
+      "title": "在ArchLinux上无法安装",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/49",
+      "updatedAt": "2026-08-30T02:42:24Z"
+    },
+    {
+      "id": "disc-53",
+      "title": "Windows 平台运行快速模式时，默认调用 Linux 终端命令导致执行失败",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/53",
+      "updatedAt": "2026-08-30T02:38:06Z"
+    },
+    {
+      "id": "disc-55",
+      "title": "pnpm add -g @deepseek-ai/dsh 安装后 dsh 无法启动：找不到 cordis-plugin-timer",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/55",
+      "updatedAt": "2026-08-30T02:36:25Z"
+    },
+    {
+      "id": "disc-68",
+      "title": "如何优雅的迁移现有插件到deepseek-harness",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/68",
+      "updatedAt": "2026-08-30T02:46:45Z"
+    },
+    {
+      "id": "disc-71",
+      "title": "dsh prints `failed to load .env: EISDIR` when a directory named `.env` exists in the working directory",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/71",
+      "updatedAt": "2026-08-30T02:39:02Z"
+    },
+    {
+      "id": "disc-76",
+      "title": "还没法--host 0.0.0.0启动啊",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/76",
+      "updatedAt": "2026-08-30T02:40:12Z"
+    },
+    {
+      "id": "disc-90",
+      "title": "能不能支持ssh远程连接项目",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/90",
+      "updatedAt": "2026-08-30T02:41:09Z"
+    },
+    {
+      "id": "disc-100",
+      "title": "[Bug] dsh web fails with \"The requested module 'node:zlib' does not provide an export named 'createZstdDecompress'\"",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/100",
+      "updatedAt": "2026-08-30T02:35:21Z"
+    },
+    {
+      "id": "disc-106",
+      "title": "获取可用模型不可以全部反选",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/106",
+      "updatedAt": "2026-08-30T02:44:27Z"
+    },
+    {
+      "id": "disc-107",
+      "title": "issue: 非常逆天的bug,中文路径选择截断. 目前看来bug可能有点多",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/107",
+      "updatedAt": "2026-08-30T02:37:15Z"
+    },
+    {
+      "id": "disc-109",
+      "title": "建议：为 Ralph 增加可选、有界的失败接续（failure successor）",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/109",
+      "updatedAt": "2026-08-30T02:34:18Z"
+    },
+    {
+      "id": "disc-110",
+      "title": "源码拆解：DSH 的 system prompt 不是一份大 prompt，而是三条装配线",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/110",
+      "updatedAt": "2026-08-30T02:33:17Z"
+    },
+    {
+      "id": "disc-111",
+      "title": "启动的时候直接卡住有人遇到吗?",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/111",
+      "updatedAt": "2026-08-30T02:31:46Z"
+    }
+  ]
+}

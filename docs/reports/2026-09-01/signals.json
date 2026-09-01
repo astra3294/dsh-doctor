@@ -1,18 +1,24 @@
 {
-  "minedAt": "2026-09-01T16:38:10.215Z",
+  "minedAt": "2026-09-01T21:00:54.821Z",
   "distTags": {
     "next": "0.1.1-rc.2",
     "latest": "0.1.1-rc.2",
     "alpha": "0.1.2-alpha.4"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 1,
+  "newOrChangedDiscussions": 2,
   "signals": [
     {
-      "id": "disc-14",
-      "title": "求一个memory能力",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/14",
-      "updatedAt": "2026-09-01T16:16:29Z"
+      "id": "disc-30",
+      "title": "！错误！无法打开文件夹  directory picker failed: directory picker failed: win32 folder dialog worker exited before reporting a result",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/30",
+      "updatedAt": "2026-09-01T16:47:29Z"
+    },
+    {
+      "id": "disc-76",
+      "title": "还没法--host 0.0.0.0启动啊",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/76",
+      "updatedAt": "2026-09-01T19:06:25Z"
     }
   ]
 }

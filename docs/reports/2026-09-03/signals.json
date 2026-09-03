@@ -1,11 +1,18 @@
 {
-  "minedAt": "2026-09-03T04:21:26.029Z",
+  "minedAt": "2026-09-03T11:12:04.202Z",
   "distTags": {
-    "next": "0.1.1-rc.2",
+    "next": "0.1.2-rc.1",
     "latest": "0.1.1-rc.2",
     "alpha": "0.1.2-alpha.5"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 0,
-  "signals": []
+  "newOrChangedDiscussions": 1,
+  "signals": [
+    {
+      "id": "disc-30",
+      "title": "！错误！无法打开文件夹  directory picker failed: directory picker failed: win32 folder dialog worker exited before reporting a result",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/30",
+      "updatedAt": "2026-09-03T06:04:55Z"
+    }
+  ]
 }

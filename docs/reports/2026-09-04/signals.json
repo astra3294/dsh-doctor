@@ -1,11 +1,18 @@
 {
-  "minedAt": "2026-09-04T11:15:48.337Z",
+  "minedAt": "2026-09-04T16:20:06.710Z",
   "distTags": {
     "latest": "0.1.2-rc.1",
     "alpha": "0.1.2-alpha.5",
     "next": "0.1.2-rc.1"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 0,
-  "signals": []
+  "newOrChangedDiscussions": 1,
+  "signals": [
+    {
+      "id": "disc-61",
+      "title": "都是来打卡的是吧，那我来许个愿吧：回滚pricing🙏",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/61",
+      "updatedAt": "2026-09-04T13:51:18Z"
+    }
+  ]
 }

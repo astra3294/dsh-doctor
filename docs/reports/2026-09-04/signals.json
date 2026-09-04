@@ -1,18 +1,11 @@
 {
-  "minedAt": "2026-09-04T04:30:55.714Z",
+  "minedAt": "2026-09-04T11:15:48.337Z",
   "distTags": {
     "latest": "0.1.2-rc.1",
     "alpha": "0.1.2-alpha.5",
     "next": "0.1.2-rc.1"
   },
-  "distTagChanged": true,
-  "newOrChangedDiscussions": 1,
-  "signals": [
-    {
-      "id": "disc-29",
-      "title": "dsh web对话过程中似乎没办法切换使用模式",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/29",
-      "updatedAt": "2026-09-04T01:02:11Z"
-    }
-  ]
+  "distTagChanged": false,
+  "newOrChangedDiscussions": 0,
+  "signals": []
 }

@@ -1,18 +1,11 @@
 {
-  "minedAt": "2026-09-13T16:14:52.725Z",
+  "minedAt": "2026-09-13T20:48:19.060Z",
   "distTags": {
     "alpha": "0.1.5-alpha.2",
     "next": "0.1.5-rc.2",
     "latest": "0.1.5-rc.1"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 1,
-  "signals": [
-    {
-      "id": "disc-110",
-      "title": "源码拆解：DSH 的 system prompt 不是一份大 prompt，而是三条装配线",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/110",
-      "updatedAt": "2026-09-13T14:15:23Z"
-    }
-  ]
+  "newOrChangedDiscussions": 0,
+  "signals": []
 }

@@ -1,24 +1,11 @@
 {
-  "minedAt": "2026-09-21T12:45:24.220Z",
+  "minedAt": "2026-09-21T21:57:46.860Z",
   "distTags": {
     "next": "0.1.5-rc.2",
     "latest": "0.1.5-rc.2",
     "alpha": "0.1.6-alpha.2"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 2,
-  "signals": [
-    {
-      "id": "disc-46",
-      "title": "无法启动 dsh // Cannot launch dsh",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/46",
-      "updatedAt": "2026-09-21T08:47:56Z"
-    },
-    {
-      "id": "disc-53",
-      "title": "Windows 平台运行快速模式时，默认调用 Linux 终端命令导致执行失败",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/53",
-      "updatedAt": "2026-09-21T08:47:43Z"
-    }
-  ]
+  "newOrChangedDiscussions": 0,
+  "signals": []
 }

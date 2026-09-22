@@ -1,18 +1,11 @@
 {
-  "minedAt": "2026-09-22T11:35:29.958Z",
+  "minedAt": "2026-09-22T16:55:54.200Z",
   "distTags": {
     "latest": "0.1.5-rc.2",
-    "alpha": "0.1.7-alpha.1",
-    "next": "0.1.5-rc.3"
+    "next": "0.1.5-rc.3",
+    "alpha": "0.1.7-alpha.2"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 1,
-  "signals": [
-    {
-      "id": "disc-14",
-      "title": "求一个memory能力",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/14",
-      "updatedAt": "2026-09-22T06:09:30Z"
-    }
-  ]
+  "newOrChangedDiscussions": 0,
+  "signals": []
 }

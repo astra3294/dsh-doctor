@@ -1,0 +1,18 @@
+{
+  "minedAt": "2026-09-25T04:55:33.775Z",
+  "distTags": {
+    "latest": "0.1.5-rc.3",
+    "alpha": "0.1.7-alpha.2",
+    "next": "0.1.7-rc.2"
+  },
+  "distTagChanged": false,
+  "newOrChangedDiscussions": 1,
+  "signals": [
+    {
+      "id": "disc-16",
+      "title": "飞书的调查问卷 昵称不能写中文和英文",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/16",
+      "updatedAt": "2026-09-25T01:30:09Z"
+    }
+  ]
+}

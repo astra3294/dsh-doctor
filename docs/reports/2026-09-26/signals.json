@@ -1,11 +1,18 @@
 {
-  "minedAt": "2026-09-26T11:22:32.601Z",
+  "minedAt": "2026-09-26T16:21:40.721Z",
   "distTags": {
     "latest": "0.1.5-rc.3",
     "alpha": "0.1.7-alpha.2",
     "next": "0.1.7-rc.2"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 0,
-  "signals": []
+  "newOrChangedDiscussions": 1,
+  "signals": [
+    {
+      "id": "disc-105",
+      "title": "[Bug] Python SDK accepts malformed initialize.serverInfo responses",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/105",
+      "updatedAt": "2026-09-26T13:09:43Z"
+    }
+  ]
 }

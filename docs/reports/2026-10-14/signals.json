@@ -1,9 +1,9 @@
 {
-  "minedAt": "2026-10-14T11:48:52.537Z",
+  "minedAt": "2026-10-14T17:08:05.726Z",
   "distTags": {
     "latest": "0.2.0-rc.2",
     "next": "0.2.0-rc.2",
-    "alpha": "0.2.1-alpha.2"
+    "alpha": "0.2.1-alpha.3"
   },
   "distTagChanged": false,
   "newOrChangedDiscussions": 0,

@@ -1,18 +1,11 @@
 {
-  "minedAt": "2026-10-16T16:36:50.040Z",
+  "minedAt": "2026-10-16T21:05:19.113Z",
   "distTags": {
     "next": "0.2.0-rc.2",
     "latest": "0.2.0-rc.2",
     "alpha": "0.2.1-alpha.5"
   },
   "distTagChanged": false,
-  "newOrChangedDiscussions": 1,
-  "signals": [
-    {
-      "id": "disc-86",
-      "title": "提供对除 npm 外包管理器的支持",
-      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/86",
-      "updatedAt": "2026-10-16T13:53:12Z"
-    }
-  ]
+  "newOrChangedDiscussions": 0,
+  "signals": []
 }

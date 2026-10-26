@@ -1,0 +1,18 @@
+{
+  "minedAt": "2026-10-26T04:43:33.125Z",
+  "distTags": {
+    "alpha": "0.2.1-alpha.5",
+    "next": "0.2.1-rc.3",
+    "latest": "0.2.1-rc.2"
+  },
+  "distTagChanged": false,
+  "newOrChangedDiscussions": 1,
+  "signals": [
+    {
+      "id": "disc-19",
+      "title": "做 MAC 原生 APP 吗？",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/19",
+      "updatedAt": "2026-10-26T02:05:43Z"
+    }
+  ]
+}

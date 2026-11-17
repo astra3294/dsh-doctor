@@ -1,0 +1,11 @@
+{
+  "minedAt": "2026-11-17T07:51:59.707Z",
+  "distTags": {
+    "alpha": "0.2.2-alpha.3",
+    "latest": "0.2.2-rc.1",
+    "next": "0.2.2-rc.3"
+  },
+  "distTagChanged": false,
+  "newOrChangedDiscussions": 0,
+  "signals": []
+}
